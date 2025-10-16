@@ -14,6 +14,7 @@ import userRoutes from './routes/users.js';
 import tableRoutes from './routes/tables.js';
 import reservationRoutes from './routes/reservations.js';
 import gameRoutes from './routes/games.js';
+import statsRoutes from './routes/stats.js';
 
 dotenv.config();
 
@@ -57,7 +58,8 @@ app.get('/', (req, res) => {
       users: '/api/users',
       tables: '/api/tables',
       reservations: '/api/reservations',
-      games: '/api/games'
+      games: '/api/games',
+      stats: '/api/stats'
     }
   });
 });
@@ -105,6 +107,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/tables', tableRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/games', gameRoutes);
+app.use('/api/stats', statsRoutes);
 
 
 // Gestion des erreurs
