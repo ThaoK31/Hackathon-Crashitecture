@@ -57,6 +57,15 @@ Bienvenue dans le Hackathon Ynov Toulouse 2025 !
 
 > Ici, listez les principales technologies, en expliquant pourquoi vous les avez choisies. Tout choix technique, langages, frameworks doit être justifié. (Parce que vous maîtrisez déjà la techno, parce que c'est la plus adaptée au besoin, parce que c'est la plus innovante, etc.)
 
+# IA & Data:
+- Python : Langage que l'on maitrise le mieux mais aussi le plus utilisé pour la Data Science et l'exploration de données, notamment grâce à ses bibliothèques comme Pandas.
+
+- Pandas : Bibliothèque indispensable pour manipuler des données tabulaires. Le format DataFrame et ses nombreuses méthodes nous ont permis de nettoyer, transformer et gérer efficacement les valeurs manquantes.
+
+- Jupyter Notebook : Un environnement parfait pour l’analyse exploratoire. Son interface par cellules nous a permis d’itérer rapidement sur nos traitements tout en documentant clairement notre démarche, rendant notre travail facile à suivre.
+
+- Power BI : Outil de Data Visualisation. Nous l'avons choisi pour la restitution finale de nos analyses. Sa capacité à créer rapidement des dashboards interactifs et percutants en fait la solution idéale.
+
 ## Architecture
 
 > Faite un schéma simple de l'architecture technique de votre solution. Chaque service/composant est un bloc, et les interactions entre les blocs sont des flèches. Vous pouvez utiliser des outils comme [draw.io](https://app.diagrams.net/), ou encore [Excalidraw](https://excalidraw.com/) pour créer vos schémas. C'est une vue d'ensemble, pas un détail de chaque composant. Chacun d'entre vous doit être capable d'expliquer cette architecture.
