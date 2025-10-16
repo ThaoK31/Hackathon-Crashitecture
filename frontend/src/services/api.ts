@@ -1,18 +1,41 @@
-import axios from "axios";
+import axios from 'axios';
 
+// Instance axios avec config de base
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL, // e.g. http://localhost:3000
-  withCredentials: false,
+  baseURL: 'http://localhost:3000/api',
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
 
-// Attach JWT if present
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token"); // you can change storage strategy
-  if (token) {
-    config.headers = config.headers ?? {};
-    config.headers.Authorization = `Bearer ${token}`;
+// Intercepteur pour ajouter le token JWT automatiquement
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  return config;
-});
+);
+
+// Intercepteur pour gérer les erreurs globales
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Token invalide ou expiré → déconnexion
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      if (window.location.pathname !== '/login') {
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
 
 export default api;
