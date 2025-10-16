@@ -57,7 +57,7 @@ Bienvenue dans le Hackathon Ynov Toulouse 2025 !
 
 > Ici, listez les principales technologies, en expliquant pourquoi vous les avez choisies. Tout choix technique, langages, frameworks doit être justifié. (Parce que vous maîtrisez déjà la techno, parce que c'est la plus adaptée au besoin, parce que c'est la plus innovante, etc.)
 
-# IA & Data:
+#### IA & Data:
 - Python : Langage que l'on maitrise le mieux mais aussi le plus utilisé pour la Data Science et l'exploration de données, notamment grâce à ses bibliothèques comme Pandas.
 
 - Pandas : Bibliothèque indispensable pour manipuler des données tabulaires. Le format DataFrame et ses nombreuses méthodes nous ont permis de nettoyer, transformer et gérer efficacement les valeurs manquantes.
