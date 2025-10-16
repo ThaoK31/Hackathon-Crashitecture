@@ -2,6 +2,19 @@ import bcrypt from 'bcryptjs';
 import { sequelize, User, Table, Reservation, Game, GamePlayer } from '../models/index.js';
 import { USER_ROLES, TABLE_CONDITIONS, RESERVATION_STATUS, GAME_STATUS, TEAM_COLORS, PLAYER_ROLES } from '../utils/constants.js';
 
+// Fonction helper pour générer un nombre aléatoire
+const random = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+
+// Fonction helper pour mélanger un tableau
+const shuffle = (array) => {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+};
+
 const seedDatabase = async () => {
   try {
     console.log('🌱 Démarrage du seeding...');
@@ -10,14 +23,14 @@ const seedDatabase = async () => {
     await sequelize.sync({ alter: true });
     console.log('✅ Base de données synchronisée');
 
-    // Nettoyer les données existantes
-    console.log('🧹 Nettoyage des données existantes...');
-    await GamePlayer.destroy({ where: {} });
-    await Game.destroy({ where: {} });
-    await Reservation.destroy({ where: {} });
-    await Table.destroy({ where: {} });
-    await User.destroy({ where: {} });
-    console.log('✅ Données nettoyées');
+    // Nettoyer TOUTES les données existantes
+    console.log('🧹 Nettoyage complet de la base de données...');
+    await GamePlayer.destroy({ where: {}, truncate: true, cascade: true });
+    await Game.destroy({ where: {}, truncate: true, cascade: true });
+    await Reservation.destroy({ where: {}, truncate: true, cascade: true });
+    await Table.destroy({ where: {}, truncate: true, cascade: true });
+    await User.destroy({ where: {}, truncate: true, cascade: true });
+    console.log('✅ Base de données complètement nettoyée');
 
     // ===== 1. CRÉER LES UTILISATEURS =====
     console.log('\n👥 Création des utilisateurs...');
@@ -261,106 +274,118 @@ const seedDatabase = async () => {
 
     console.log(`✅ 2 parties en cours créées`);
 
-    // ===== 5. CRÉER DES PARTIES TERMINÉES =====
-    console.log('\n🏆 Création des parties terminées...');
+    // ===== 5. CRÉER 90 PARTIES TERMINÉES (40 parties par utilisateur) =====
+    console.log('\n🏆 Création de 90 parties terminées (40 parties/utilisateur)...');
+    
+    const finishedGamesCount = 90;
+    const availableUsers = users.slice(1); // Exclure l'admin
+    let gamesCreated = 0;
 
-    const game3 = await Game.create({
-      table_id: tables[0].id,
-      team_red_score: 10,
-      team_blue_score: 8,
-      status: GAME_STATUS.FINISHED,
-      started_at: new Date(now.getTime() - 2 * 60 * 60 * 1000), // Il y a 2h
-      ended_at: new Date(now.getTime() - 1.5 * 60 * 60 * 1000) // Il y a 1h30
-    });
+    for (let i = 0; i < finishedGamesCount; i++) {
+      // Sélectionner 4 joueurs aléatoires parmi les utilisateurs disponibles
+      const shuffledUsers = shuffle(availableUsers);
+      const gamePlayers = shuffledUsers.slice(0, 4);
 
-    await GamePlayer.bulkCreate([
-      {
-        game_id: game3.id,
-        user_id: users[1].id, // theo
-        team_color: TEAM_COLORS.RED,
-        role: PLAYER_ROLES.ATTACK,
-        goals: 6,
-        assists: 3,
-        saves: 0
-      },
-      {
-        game_id: game3.id,
-        user_id: users[2].id, // antoine
-        team_color: TEAM_COLORS.RED,
-        role: PLAYER_ROLES.DEFENSE,
-        goals: 4,
-        assists: 5,
-        saves: 8
-      },
-      {
-        game_id: game3.id,
-        user_id: users[5].id, // remi
-        team_color: TEAM_COLORS.BLUE,
-        role: PLAYER_ROLES.ATTACK,
-        goals: 5,
-        assists: 2,
-        saves: 0
-      },
-      {
-        game_id: game3.id,
-        user_id: users[6].id, // louis
-        team_color: TEAM_COLORS.BLUE,
-        role: PLAYER_ROLES.DEFENSE,
-        goals: 3,
-        assists: 1,
-        saves: 7
+      // Générer des scores aléatoires (gagnant à 10)
+      const redScore = 10;
+      const blueScore = random(4, 9);
+
+      // Calculer un timestamp dans le passé (entre 1 et 60 jours)
+      const daysAgo = random(1, 60);
+      const hoursOffset = random(0, 23);
+      const minutesOffset = random(0, 59);
+      const gameTime = new Date(now);
+      gameTime.setDate(gameTime.getDate() - daysAgo);
+      gameTime.setHours(hoursOffset, minutesOffset, 0, 0);
+
+      // Durée de partie entre 20 et 60 minutes
+      const gameDuration = random(20, 60);
+      const endTime = new Date(gameTime.getTime() + gameDuration * 60 * 1000);
+
+      // Créer la partie
+      const game = await Game.create({
+        table_id: tables[random(0, tables.length - 1)].id,
+        team_red_score: redScore,
+        team_blue_score: blueScore,
+        status: GAME_STATUS.FINISHED,
+        started_at: gameTime,
+        ended_at: endTime
+      });
+
+      // Créer les joueurs avec des stats réalistes
+      const redGoals = redScore;
+      const blueGoals = blueScore;
+
+      // Distribuer les goals de l'équipe rouge
+      const redAttackGoals = random(Math.ceil(redGoals * 0.5), redGoals);
+      const redDefenseGoals = redGoals - redAttackGoals;
+
+      // Distribuer les goals de l'équipe bleue
+      const blueAttackGoals = random(Math.ceil(blueGoals * 0.5), blueGoals);
+      const blueDefenseGoals = blueGoals - blueAttackGoals;
+
+      await GamePlayer.bulkCreate([
+        {
+          game_id: game.id,
+          user_id: gamePlayers[0].id,
+          team_color: TEAM_COLORS.RED,
+          role: PLAYER_ROLES.ATTACK,
+          goals: redAttackGoals,
+          assists: random(0, redDefenseGoals),
+          saves: 0
+        },
+        {
+          game_id: game.id,
+          user_id: gamePlayers[1].id,
+          team_color: TEAM_COLORS.RED,
+          role: PLAYER_ROLES.DEFENSE,
+          goals: redDefenseGoals,
+          assists: random(0, redAttackGoals),
+          saves: random(blueGoals, blueGoals + 5)
+        },
+        {
+          game_id: game.id,
+          user_id: gamePlayers[2].id,
+          team_color: TEAM_COLORS.BLUE,
+          role: PLAYER_ROLES.ATTACK,
+          goals: blueAttackGoals,
+          assists: random(0, blueDefenseGoals),
+          saves: 0
+        },
+        {
+          game_id: game.id,
+          user_id: gamePlayers[3].id,
+          team_color: TEAM_COLORS.BLUE,
+          role: PLAYER_ROLES.DEFENSE,
+          goals: blueDefenseGoals,
+          assists: random(0, blueAttackGoals),
+          saves: random(redGoals, redGoals + 5)
+        }
+      ]);
+
+      gamesCreated++;
+      
+      // Afficher la progression tous les 10 parties
+      if (gamesCreated % 10 === 0) {
+        console.log(`   Progression : ${gamesCreated}/${finishedGamesCount} parties créées...`);
       }
-    ]);
+    }
 
-    const game4 = await Game.create({
-      table_id: tables[1].id,
-      team_red_score: 10,
-      team_blue_score: 6,
-      status: GAME_STATUS.FINISHED,
-      started_at: new Date(now.getTime() - 4 * 60 * 60 * 1000), // Il y a 4h
-      ended_at: new Date(now.getTime() - 3 * 60 * 60 * 1000) // Il y a 3h
-    });
+    console.log(`✅ ${gamesCreated} parties terminées créées avec succès !`);
 
-    await GamePlayer.bulkCreate([
-      {
-        game_id: game4.id,
-        user_id: users[3].id, // lucas
-        team_color: TEAM_COLORS.RED,
-        role: PLAYER_ROLES.ATTACK,
-        goals: 7,
-        assists: 2,
-        saves: 0
-      },
-      {
-        game_id: game4.id,
-        user_id: users[4].id, // julien
-        team_color: TEAM_COLORS.RED,
-        role: PLAYER_ROLES.DEFENSE,
-        goals: 3,
-        assists: 4,
-        saves: 6
-      },
-      {
-        game_id: game4.id,
-        user_id: users[7].id, // inasse
-        team_color: TEAM_COLORS.BLUE,
-        role: PLAYER_ROLES.ATTACK,
-        goals: 4,
-        assists: 1,
-        saves: 0
-      },
-      {
-        game_id: game4.id,
-        user_id: users[8].id, // mathis
-        team_color: TEAM_COLORS.BLUE,
-        role: PLAYER_ROLES.DEFENSE,
-        goals: 2,
-        assists: 2,
-        saves: 9
-      }
-    ]);
-
-    console.log(`✅ 2 parties terminées créées`);
+    // Compter les parties par utilisateur
+    console.log('\n📊 Vérification des parties par utilisateur...');
+    for (const user of availableUsers) {
+      const count = await GamePlayer.count({
+        where: { user_id: user.id },
+        include: [{
+          model: Game,
+          as: 'game',
+          where: { status: GAME_STATUS.FINISHED }
+        }]
+      });
+      console.log(`   ${user.username} : ${count} parties terminées`);
+    }
 
     // ===== RÉSUMÉ =====
     console.log('\n📊 Résumé du seeding :');
@@ -377,15 +402,21 @@ const seedDatabase = async () => {
     console.log(`   - Complétées : ${reservations.filter(r => r.status === RESERVATION_STATUS.COMPLETED).length}`);
     console.log(`\n🎮 Parties :`);
     console.log(`   - En cours : 2 parties`);
-    console.log(`   - Terminées : 2 parties`);
-    console.log(`   - Total joueurs : 16`);
+    console.log(`   - Terminées : ${gamesCreated} parties`);
+    console.log(`   - Total joueurs dans l'historique : ${gamesCreated * 4}`);
+    console.log(`   - ~40 parties par utilisateur`);
     console.log('─────────────────────────────────────');
     console.log('\n✅ Seeding terminé avec succès !');
     console.log('\n🚀 Vous pouvez maintenant tester l\'API avec ces comptes :');
     console.log('   - admin@ynov.com / password123 (ADMIN)');
     console.log('   - theo@ynov.com / password123 (USER)');
     console.log('   - antoine@ynov.com / password123 (USER)');
-    console.log('   - etc...');
+    console.log('   - lucas@ynov.com / password123 (USER)');
+    console.log('   - julien@ynov.com / password123 (USER)');
+    console.log('   - remi@ynov.com / password123 (USER)');
+    console.log('   - louis@ynov.com / password123 (USER)');
+    console.log('   - inasse@ynov.com / password123 (USER)');
+    console.log('   - mathis@ynov.com / password123 (USER)');
 
     process.exit(0);
   } catch (error) {
@@ -396,4 +427,3 @@ const seedDatabase = async () => {
 
 // Exécuter le seeding
 seedDatabase();
-

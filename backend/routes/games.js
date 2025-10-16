@@ -1,23 +1,56 @@
 import express from 'express';
 import {
-  getLiveGames,
-  getGameById,
-  createGame,
-  updateGameScore,
-  endGame
+    getLiveGames,
+    getGameById,
+    createGame,
+    updateGameScore,
+    endGame,
+    getGameHistory
 } from '../controllers/gameController.js';
 import { authenticate } from '../middleware/auth.js';
 import {
-  createGameValidator,
-  updateScoreValidator,
-  uuidValidator
+    createGameValidator,
+    updateScoreValidator,
+    uuidValidator
 } from '../middleware/validators.js';
 import {
-  cacheLiveGames,
-  cacheGame
+    cacheLiveGames,
+    cacheGame
 } from '../middleware/cache.js';
 
 const router = express.Router();
+
+/**
+ * @swagger
+ * /api/games/history:
+ *   get:
+ *     tags: [Games]
+ *     summary: Récupérer l'historique des parties de l'utilisateur authentifié
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Historique des parties terminées de l'utilisateur
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     games:
+ *                       type: array
+ *                       items:
+ *                         type: object
+ *                     total:
+ *                       type: integer
+ *       401:
+ *         description: Non authentifié
+ */
+router.get('/history', authenticate, getGameHistory);
 
 /**
  * @swagger
