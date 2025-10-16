@@ -6,6 +6,7 @@ import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './config/swagger.js';
 import { sequelize } from './models/index.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
+import redis, { pingRedis } from './config/redis.js';
 
 // Routes
 import authRoutes from './routes/auth.js';
@@ -64,20 +65,35 @@ app.get('/', (req, res) => {
 
 // Health check
 app.get('/health', async (req, res) => {
+  const services = {
+    database: 'disconnected',
+    redis: 'disconnected'
+  };
+
   try {
+    // Vérifier PostgreSQL
     await sequelize.authenticate();
-    res.status(200).json({
-      success: true,
-      status: 'healthy',
-      database: 'connected',
+    services.database = 'connected';
+
+    // Vérifier Redis
+    const redisConnected = await pingRedis();
+    services.redis = redisConnected ? 'connected' : 'disconnected';
+
+    const isHealthy = services.database === 'connected' && services.redis === 'connected';
+
+    res.status(isHealthy ? 200 : 503).json({
+      success: isHealthy,
+      status: isHealthy ? 'healthy' : 'degraded',
+      services,
       timestamp: new Date().toISOString()
     });
   } catch (error) {
     res.status(503).json({
       success: false,
       status: 'unhealthy',
-      database: 'disconnected',
-      error: error.message
+      services,
+      error: error.message,
+      timestamp: new Date().toISOString()
     });
   }
 });
@@ -99,26 +115,50 @@ app.use(errorHandler);
 // Initialisation de la base de données et démarrage du serveur
 const startServer = async () => {
     try {
-        // Tester la connexion à la DB
+        // Tester la connexion à PostgreSQL
         await sequelize.authenticate();
-        console.log('✅ Connexion à la base de données réussie');
+        console.log('Connexion à la base de données PostgreSQL réussie');
 
         // Synchroniser les modèles (en dev seulement)
         if (process.env.NODE_ENV === 'development') {
             await sequelize.sync({ alter: true });
-            console.log('✅ Modèles synchronisés');
+            console.log('Modèles synchronisés');
+        }
+
+        // Tester la connexion à Redis
+        const redisConnected = await pingRedis();
+        if (redisConnected) {
+            console.log('Connexion à Redis réussie');
+        } else {
+            console.warn('Redis non disponible - L\'application continuera sans cache');
         }
 
         // Démarrer le serveur
         app.listen(PORT, () => {
-        console.log(`Serveur démarré sur le port ${PORT}`);
-        console.log(`Documentation disponible sur http://localhost:${PORT}/api-docs`);
-        console.log(`Prêt pour le hackathon !`);
+            console.log(`Serveur démarré sur le port ${PORT}`);
+            console.log(`Documentation disponible sur http://localhost:${PORT}/api-docs`);
+            console.log(`Health check: http://localhost:${PORT}/health`);
+            console.log(`Prêt pour le hackathon !`);
         });
     } catch (error) {
         console.error('Erreur au démarrage:', error);
         process.exit(1);
     }
 };
+
+// Gestion propre de l'arrêt
+process.on('SIGTERM', async () => {
+    console.log('Arrêt propre du serveur...');
+    await redis.quit();
+    await sequelize.close();
+    process.exit(0);
+});
+
+process.on('SIGINT', async () => {
+    console.log('Arrêt du serveur...');
+    await redis.quit();
+    await sequelize.close();
+    process.exit(0);
+});
 
 startServer();

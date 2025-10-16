@@ -1,17 +1,21 @@
 import express from 'express';
 import {
-    getLiveGames,
-    getGameById,
-    createGame,
-    updateGameScore,
-    endGame
+  getLiveGames,
+  getGameById,
+  createGame,
+  updateGameScore,
+  endGame
 } from '../controllers/gameController.js';
 import { authenticate } from '../middleware/auth.js';
 import {
-    createGameValidator,
-    updateScoreValidator,
-    uuidValidator
+  createGameValidator,
+  updateScoreValidator,
+  uuidValidator
 } from '../middleware/validators.js';
+import {
+  cacheLiveGames,
+  cacheGame
+} from '../middleware/cache.js';
 
 const router = express.Router();
 
@@ -25,7 +29,7 @@ const router = express.Router();
  *       200:
  *         description: Liste des parties en cours
  */
-router.get('/live', getLiveGames);
+router.get('/live', cacheLiveGames, getLiveGames);
 
 /**
  * @swagger
@@ -46,7 +50,7 @@ router.get('/live', getLiveGames);
  *       404:
  *         description: Partie non trouvée
  */
-router.get('/:id', uuidValidator, getGameById);
+router.get('/:id', uuidValidator, cacheGame, getGameById);
 
 /**
  * @swagger

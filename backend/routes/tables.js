@@ -1,18 +1,23 @@
 import express from 'express';
 import {
-    getAllTables,
-    getTableById,
-    createTable,
-    updateTable,
-    deleteTable,
-    getTableAvailability
+  getAllTables,
+  getTableById,
+  createTable,
+  updateTable,
+  deleteTable,
+  getTableAvailability
 } from '../controllers/tableController.js';
 import { authenticate, requireAdmin } from '../middleware/auth.js';
 import {
-    createTableValidator,
-    updateTableValidator,
-    uuidValidator
+  createTableValidator,
+  updateTableValidator,
+  uuidValidator
 } from '../middleware/validators.js';
+import {
+  cacheTablesList,
+  cacheTable,
+  cacheTableAvailability
+} from '../middleware/cache.js';
 
 const router = express.Router();
 
@@ -26,7 +31,7 @@ const router = express.Router();
  *       200:
  *         description: Liste des babyfoots
  */
-router.get('/', getAllTables);
+router.get('/', cacheTablesList, getAllTables);
 
 /**
  * @swagger
@@ -47,7 +52,7 @@ router.get('/', getAllTables);
  *       404:
  *         description: Babyfoot non trouvé
  */
-router.get('/:id', uuidValidator, getTableById);
+router.get('/:id', uuidValidator, cacheTable, getTableById);
 
 /**
  * @swagger
@@ -78,7 +83,7 @@ router.get('/:id', uuidValidator, getTableById);
  *       404:
  *         description: Babyfoot non trouvé
  */
-router.get('/:id/availability', uuidValidator, getTableAvailability);
+router.get('/:id/availability', uuidValidator, cacheTableAvailability, getTableAvailability);
 
 /**
  * @swagger

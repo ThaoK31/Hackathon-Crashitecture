@@ -1,5 +1,6 @@
 import { Game, GamePlayer, Table, User } from '../models/index.js';
 import { GAME_STATUS } from '../utils/constants.js';
+import { invalidateCache } from '../middleware/cache.js';
 
 // Récupérer toutes les parties en cours
 export const getLiveGames = async (req, res, next) => {
@@ -152,6 +153,9 @@ export const createGame = async (req, res, next) => {
       ]
     });
 
+    // Invalider le cache des parties
+    await invalidateCache(['games:*']);
+
     res.status(201).json({
       success: true,
       message: 'Partie créée avec succès',
@@ -217,6 +221,9 @@ export const updateGameScore = async (req, res, next) => {
       ]
     });
 
+    // Invalider le cache des parties
+    await invalidateCache(['games:*']);
+
     res.status(200).json({
       success: true,
       message: 'Score mis à jour',
@@ -274,6 +281,9 @@ export const endGame = async (req, res, next) => {
         }
       ]
     });
+
+    // Invalider le cache des parties
+    await invalidateCache(['games:*']);
 
     res.status(200).json({
       success: true,

@@ -1,6 +1,7 @@
 import { Table, Reservation } from '../models/index.js';
 import { Op } from 'sequelize';
 import { RESERVATION_STATUS } from '../utils/constants.js';
+import { invalidateCache } from '../middleware/cache.js';
 
 // Récupérer toutes les tables
 export const getAllTables = async (req, res, next) => {
@@ -52,6 +53,9 @@ export const createTable = async (req, res, next) => {
       condition
     });
 
+    // Invalider le cache des tables
+    await invalidateCache(['tables:*']);
+
     res.status(201).json({
       success: true,
       message: 'Babyfoot créé avec succès',
@@ -84,6 +88,9 @@ export const updateTable = async (req, res, next) => {
 
     await table.save();
 
+    // Invalider le cache des tables
+    await invalidateCache(['tables:*']);
+
     res.status(200).json({
       success: true,
       message: 'Babyfoot mis à jour',
@@ -109,6 +116,9 @@ export const deleteTable = async (req, res, next) => {
     }
 
     await table.destroy();
+
+    // Invalider le cache des tables
+    await invalidateCache(['tables:*']);
 
     res.status(200).json({
       success: true,

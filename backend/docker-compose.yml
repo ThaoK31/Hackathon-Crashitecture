@@ -16,11 +16,27 @@ services:
       timeout: 5s
       retries: 5
 
+  redis:
+    image: redis:7-alpine
+    container_name: babyfoot_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    command: redis-server --appendonly yes
+
   backend:
     build: .
     container_name: babyfoot_backend
     depends_on:
       postgres:
+        condition: service_healthy
+      redis:
         condition: service_healthy
     environment:
       NODE_ENV: development
@@ -30,6 +46,8 @@ services:
       DB_NAME: babyfoot_db
       DB_USER: postgres
       DB_PASSWORD: postgres
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
       JWT_SECRET: super-secret-jwt-key-change-in-production
       JWT_EXPIRES_IN: 24h
     ports:
@@ -41,3 +59,4 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
