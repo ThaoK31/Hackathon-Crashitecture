@@ -2,26 +2,24 @@ import express from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from 'morgan';
-import rateLimit from 'express-rate-limit';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './config/swagger.js';
 import { sequelize } from './models/index.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 
-// Import des routes
+// Routes
 import authRoutes from './routes/auth.js';
 import userRoutes from './routes/users.js';
 import tableRoutes from './routes/tables.js';
 import reservationRoutes from './routes/reservations.js';
 import gameRoutes from './routes/games.js';
 
-// Configuration
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middlewares globaux
+// Middlewares
 app.use(cors({
   origin: process.env.CORS_ORIGIN || '*'
 }));
@@ -29,20 +27,22 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limite de 100 requêtes par IP
-  message: 'Trop de requêtes depuis cette IP, réessayez plus tard'
-});
-app.use('/api/', limiter);
+// // Rate limiting
+// const limiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15 minutes
+//   max: 100, // limite de 100 requêtes par IP
+//   message: 'Trop de requêtes depuis cette IP, réessayez plus tard'
+// });
+// app.use('/api/', limiter);
 
-// Documentation Swagger
+
+// Documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
   explorer: true,
   customCss: '.swagger-ui .topbar { display: none }',
   customSiteTitle: 'Babyfoot API Docs'
 }));
+
 
 // Route principale
 app.get('/', (req, res) => {
@@ -60,6 +60,7 @@ app.get('/', (req, res) => {
     }
   });
 });
+
 
 // Health check
 app.get('/health', async (req, res) => {
@@ -81,6 +82,7 @@ app.get('/health', async (req, res) => {
   }
 });
 
+
 // Routes API
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
@@ -88,9 +90,11 @@ app.use('/api/tables', tableRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/games', gameRoutes);
 
+
 // Gestion des erreurs
 app.use(notFound);
 app.use(errorHandler);
+
 
 // Initialisation de la base de données et démarrage du serveur
 const startServer = async () => {
@@ -107,12 +111,12 @@ const startServer = async () => {
 
         // Démarrer le serveur
         app.listen(PORT, () => {
-        console.log(`🚀 Serveur démarré sur le port ${PORT}`);
-        console.log(`📚 Documentation disponible sur http://localhost:${PORT}/api-docs`);
-        console.log(`🏓 Prêt pour le hackathon !`);
+        console.log(`Serveur démarré sur le port ${PORT}`);
+        console.log(`Documentation disponible sur http://localhost:${PORT}/api-docs`);
+        console.log(`Prêt pour le hackathon !`);
         });
     } catch (error) {
-        console.error('❌ Erreur au démarrage:', error);
+        console.error('Erreur au démarrage:', error);
         process.exit(1);
     }
 };
