@@ -112,3 +112,9 @@ export const uuidValidator = [
   validate
 ];
 
+// Validateur UUID pour userId
+export const userIdValidator = [
+  param('userId').isUUID().withMessage('ID utilisateur invalide'),
+  validate
+];
+
