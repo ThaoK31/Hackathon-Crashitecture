@@ -27,13 +27,14 @@ Bienvenue dans le Hackathon Ynov Toulouse 2025 !
 
 ## Equipe
 
-- Dev' FullStack 1 : NOM Prénom
-- Dev' FullStack 2 : NOM Prénom
-- Dev' FullStack 3 : NOM Prénom
-- Cloud & Infrastructure 1 : NOM Prénom
-- Cloud & Infrastructure 2 : NOM Prénom
-- IA & Data 1 : NOM Prénom
-- IoT/Mobile / Systèmes Embarqués 1 : NOM Prénom
+- Dev' FullStack 1 : STOFFELBACH Théo 
+- Dev' FullStack 2 : LAFITTE Antoine
+- Dev' FullStack 3 : REMERY Lucas
+- Cloud & Infrastructure 1 : LOUCIF Inasse
+- Cloud & Infrastructure 2 : DUBAILLE Mathis
+- IA & Data 1 : CASTELLANO Julien
+- IA & Data 2 : MESON Rémi (Porte parole)
+- IA & Data 3 : SELLIER Louis
 
 > Préciser qui est le porte parole de l'équipe, c'est lui qui répondra aux questions si nécessaire.
 
@@ -41,6 +42,7 @@ Bienvenue dans le Hackathon Ynov Toulouse 2025 !
 
 - [Contexte](#contexte)
 - [Equipe](#equipe)
+- [Table des matières](#table-des-matières)
 - [Contenu du projet](#contenu-du-projet)
 - [Technologies utilisées](#technologies-utilisées)
 - [Architecture](#architecture)
