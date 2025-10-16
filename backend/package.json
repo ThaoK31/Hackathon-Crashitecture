@@ -1,19 +1,32 @@
 {
-  "name": "backend",
+  "name": "babyfoot-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "API Backend pour système de gestion de babyfoots Ynov",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "start": "node index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": ["babyfoot", "ynov", "api"],
+  "author": "Team Crashitecture",
+  "license": "MIT",
   "type": "module",
   "dependencies": {
-    "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "dotenv": "^17.2.3",
+    "sequelize": "^6.35.2",
+    "pg": "^8.11.3",
+    "pg-hstore": "^2.3.4",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.2",
+    "express-validator": "^7.0.1",
+    "cors": "^2.8.5",
+    "express-rate-limit": "^7.1.5",
+    "swagger-ui-express": "^5.0.0",
+    "swagger-jsdoc": "^6.2.8",
+    "morgan": "^1.10.0"
+  },
+  "devDependencies": {
     "nodemon": "^3.1.10"
   }
 }
