@@ -32,60 +32,107 @@ En conclusion, cela doit résumer votre travail en tant qu'expert.e IA Data, et 
 Merci de votre participation, et bon courage pour la suite du hackathon !
 
 ______________________________________________________________________________________________________________________________________________________________________________
+# Organisation du travail
 
-On va repartir notre travail en 5 grandes etapes: Exploration des données, Modélisation de la BDD, Nettoyage des données, Exportation des données en BDD et Analyse des données et Visualisation. Tout les documents et supports cité dans ce .md sont consultable dans le dossier /rendus/data .
+Nous avons structuré notre travail en **5 grandes étapes** :  
+1. Exploration des données  
+2. Modélisation de la BDD  
+3. Nettoyage des données  
+4. Exportation des données en BDD  
+5. Analyse et visualisation des données  
 
+Tous les documents et supports cités dans ce `.md` sont disponibles dans le dossier `/rendus/data`.  
 
-# Exploration des données
+---
 
-La 1ere étapes pour nous à consisté de découvrir le dataset grâce à python et notament avec la bibliothéque pandas et de repérer les colonnes exploitable et utilisable pour la finalité du projet commun.
-A travers cette exploration nous avont répartie les tâches pour le futur néttoyage des données et la réalisation du MCD (Model Conceptuel de Données),
-grâce a cette exploration on à pu constater un gros travail de nettoyage notament au niveau des dates et en normalisation du texte et chiffres (multiformat de valeur dans les colonnes, données manquantes, erreur de format...).
+# 1. Exploration des données
 
-# Réalisation du MCD (1er jet)
+La première étape a été de **découvrir le dataset** grâce à Python, notamment avec la bibliothèque **Pandas**, et d’identifier les colonnes **exploitables** pour la finalité du projet.  
 
-Apres discution avec les différentes filliére, nous avons fait le choix de réaliser le MCD (schéma dans le dossier data) pour permettre a l'équipe des infras et aux devs d'avancer de leurs cotés sans être bloqués.
-Les infra on pu créer la BDD + les tables et les devs ont pu s'appuyer sur le MCD pour construire leurs logique de requetage.
+Cette exploration nous a permis de :  
+- répartir les tâches pour le futur **nettoyage des données**,  
+- préparer la **réalisation du MCD** (Modèle Conceptuel de Données).  
 
-# Nettoyage des données
+Nous avons rapidement constaté qu’un **gros travail de nettoyage** serait nécessaire, notamment :  
+- au niveau des **dates**,  
+- pour la **normalisation du texte et des chiffres** (valeurs multiformats, données manquantes, erreurs de format…).  
 
-Voici l'étape la plus longue et aussi celle qui nous à posé le plus de difficulté car plus on nettoyé et on exploré plus on trouver de quoi nettoyer ! on voyait le temps passer et notre donnée toujours pas propre comme on le voulait.
+---
 
-On s'est séparé le travail en 2 partie , une personne qui s'occupe du nettoyage des dates et des durées et l'autre personne qui s'occupe de la normalisation des données et complétion des valeurs nuls.
+# 2. Réalisation du MCD (1er jet)
 
-Exemple de dates dans le dataset et du resultat voulu et obtenu:
+Après discussion avec les différentes filières, nous avons décidé de réaliser un **premier MCD** (schéma disponible dans `data`).  
 
-Avant:          Aprés:
-Feb 06st 2023   2023-02-06  
-24-03-2023      2023-03-24
-2025-01-13      2025-01-13
-Nov 11 2025     2025-11-11
-30 Sep 23       2023-09-30
+Objectifs :  
+- permettre à l’équipe **infrastructure** et aux **devs** d’avancer sans blocage,  
+- fournir une base pour la **construction de la logique de requêtage**.  
 
+Résultat :  
+- Les infra ont pu créer la **BDD** et les **tables**,  
+- Les devs ont pu se baser sur le **MCD** pour construire leur logique.  
 
-Exemple de valeurs différente uniformisé par la suite dans la colonne winner:
+---
 
-Avant:        Aprés:
-Red           red
-blue          blue
-NaN           blue (Gagnant récupéré grace au score bleu et rouge de la partie)
-R             red
-B             blue
+# 3. Nettoyage des données
 
-On à encore beaucoup d'autres exemples colonne raw_rating, game_duration etc ... Toute notre démarche de nettoyage est disponible et documenté dans notre notebook dans le dossier /rendu/data.
+Cette étape a été **la plus longue et la plus complexe** :  
+> Plus on nettoyait et explorait, plus on trouvait de nouvelles données à corriger !  
 
-# Exportation des données en BDD
-C'est une des seule étapes que l'on à pas pu terminer par manque de temps, beaucoup de probléme de connexion à la BDD, on à quand même pu séparer notre CSV en plusieurs datafame correspondant à chacune de nos table en BDD et en exporter quelque une grâce à la bibliothéque SQLalchemy qui permet de se connecter à une BDD et d'exporeter des dataframe vers la BDD.
+Nous avons réparti le travail en **2 parties** :  
+- **Dates et durées** : une personne s’en est chargée,  
+- **Normalisation et complétion des valeurs nulles** : l’autre personne s’en est occupée.  
 
+**Exemple de dates avant/après nettoyage :**  
 
-# Analyse des données
+| Avant         | Après       |
+|---------------|------------|
+| Feb 06st 2023 | 2023-02-06 |
+| 24-03-2023    | 2023-03-24 |
+| 2025-01-13    | 2025-01-13 |
+| Nov 11 2025   | 2025-11-11 |
+| 30 Sep 23     | 2023-09-30 |
 
-Une fois les données propres on s'est séparer le travail,  1 personne sur l'analyse sur notebook via python et une personne sur powerBI pour le rapport à rendre avec les quelques KPI demandés.
+**Exemple de valeurs uniformisées dans la colonne `winner` :**  
 
-Avant de se lancer tête baissé dans l'analyse des données on à fixer quelques KPI qui pourrait être intéressant.
-On s'est arrêté sur 3 KPI qui nous ont semblé intéressant niveau statistiques: 
-- La corrélation entre le fait de marquer contre son camps et une possible défaite. La reponse est non ! on peut donc etre maladroit et avoir toute ses chance de gagner.
+| Avant | Après |
+|-------|-------|
+| Red   | red   |
+| blue  | blue  |
+| NaN   | blue (gagnant récupéré grâce au score bleu et rouge de la partie) |
+| R     | red   |
+| B     | blue  |
 
-- le % de victoire équipe bleu et rouge par table de baby-foot, l'objectif était de faire ressortir les tables qui favoriserai un côté plus que l'autre à cause d'une barre abîmée ou qui bloque, ou par exemple un côté qui penche plus que l'autre. Résultat les babyfoot ont l'air bien entretenu car les % de victoires sur les tables sont plutot equitable !
+> D’autres colonnes concernées : `raw_rating`, `game_duration`, etc.  
+Toute notre démarche de **nettoyage** est documentée dans le notebook, disponible dans `/rendus/data`.  
 
-- Le nombre de partie joué sur une saison 2024/2025, ce KPI nous à servi lors de la présentation de notre projet pour justifier l'utilité de notre solution de réservation de table.
+---
+
+# 4. Exportation des données en BDD
+
+Cette étape n’a pas pu être **complètement terminée** par manque de temps et à cause de **problèmes de connexion à la BDD**.  
+
+Actions réalisées :  
+- séparation du CSV en plusieurs **DataFrame** correspondant à chaque table,  
+- exportation de certaines DataFrame grâce à **SQLAlchemy** (connexion et export vers la BDD).  
+
+---
+
+# 5. Analyse des données
+
+Une fois les données nettoyées, nous avons réparti le travail :  
+- **Python (notebook)** : analyse des données,  
+- **PowerBI** : création du rapport avec les **KPI** demandés.  
+
+Avant l’analyse, nous avons défini **3 KPI principaux** :  
+
+1. **Corrélation entre les buts contre son camp et une défaite**  
+   - Résultat : **non corrélé**. On peut être maladroit et avoir toutes ses chances de gagner.  
+
+2. **Pourcentage de victoires des équipes bleue et rouge par table**  
+   - Objectif : identifier les tables favorisant un côté (barre abîmée, table inclinée…).  
+   - Résultat : les baby-foot sont **bien entretenus**, les pourcentages de victoires sont plutôt **équilibrés**.  
+
+3. **Nombre de parties jouées sur la saison 2024/2025**  
+   - Utilité : justifier la **solution de réservation de table** lors de la présentation.
+  
+  
