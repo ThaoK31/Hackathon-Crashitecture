@@ -1,4 +1,0 @@
-Lien GitHub de template à cloner : https://github.com/Hackathon-Ynov/Hackathon-Student-Template
-Lien du Serveur Discord : https://discord.gg/v5HAFu8WaQ
-Lien vers moodle : https://moodle.learn.ynov.com/course/view.php?id=73813
-Lien YLab : https://ylab.algohive.dev/
