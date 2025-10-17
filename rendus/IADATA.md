@@ -75,9 +75,17 @@ B             blue
 On à encore beaucoup d'autres exemples colonne raw_rating, game_duration etc ... Toute notre démarche de nettoyage est disponible et documenté dans notre notebook dans le dossier /rendu/data.
 
 # Exportation des données en BDD
-
 C'est une des seule étapes que l'on à pas pu terminer par manque de temps, beaucoup de probléme de connexion à la BDD, on à quand même pu séparer notre CSV en plusieurs datafame correspondant à chacune de nos table en BDD et en exporter quelque une grâce à la bibliothéque SQLalchemy qui permet de se connecter à une BDD et d'exporeter des dataframe vers la BDD.
 
 
 # Analyse des données
 
+Une fois les données propres on s'est séparer le travail,  1 personne sur l'analyse sur notebook via python et une personne sur powerBI pour le rapport à rendre avec les quelques KPI demandés.
+
+Avant de se lancer tête baissé dans l'analyse des données on à fixer quelques KPI qui pourrait être intéressant.
+On s'est arrêté sur 3 KPI qui nous ont semblé intéressant niveau statistiques: 
+- La corrélation entre le fait de marquer contre son camps et une possible défaite. La reponse est non ! on peut donc etre maladroit et avoir toute ses chance de gagner.
+
+- le % de victoire équipe bleu et rouge par table de baby-foot, l'objectif était de faire ressortir les tables qui favoriserai un côté plus que l'autre à cause d'une barre abîmée ou qui bloque, ou par exemple un côté qui penche plus que l'autre. Résultat les babyfoot ont l'air bien entretenu car les % de victoires sur les tables sont plutot equitable !
+
+- Le nombre de partie joué sur une saison 2024/2025, ce KPI nous à servi lors de la présentation de notre projet pour justifier l'utilité de notre solution de réservation de table.
