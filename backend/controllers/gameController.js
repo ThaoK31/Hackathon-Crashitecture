@@ -331,6 +331,76 @@ export const endGame = async (req, res, next) => {
   }
 };
 
+// Récupérer l'historique des parties d'un utilisateur
+export const getGameHistory = async (req, res, next) => {
+  try {
+    const userId = req.user.id; // ID de l'utilisateur authentifié
+
+    // Trouver toutes les parties où l'utilisateur a participé
+    const gamePlayers = await GamePlayer.findAll({
+      where: { user_id: userId },
+      include: [
+        {
+          model: Game,
+          as: 'game',
+          where: { status: GAME_STATUS.FINISHED },
+          include: [
+            {
+              model: Table,
+              as: 'table',
+              attributes: ['id', 'name', 'location']
+            },
+            {
+              model: GamePlayer,
+              as: 'players',
+              include: [
+                {
+                  model: User,
+                  as: 'user',
+                  attributes: ['id', 'username']
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      order: [[{ model: Game, as: 'game' }, 'ended_at', 'DESC']]
+    });
+
+    // Extraire les parties et ajouter des infos sur le résultat pour l'utilisateur
+    const games = gamePlayers.map(gp => {
+      const game = gp.game;
+      const userTeam = gp.team_color;
+      const userScore = userTeam === 'RED' ? game.team_red_score : game.team_blue_score;
+      const opponentScore = userTeam === 'RED' ? game.team_blue_score : game.team_red_score;
+      const won = userScore > opponentScore;
+
+      return {
+        ...game.toJSON(),
+        userStats: {
+          team_color: gp.team_color,
+          role: gp.role,
+          goals: gp.goals,
+          assists: gp.assists,
+          saves: gp.saves,
+          won: won,
+          score: `${userScore}-${opponentScore}`
+        }
+      };
+    });
+
+    res.status(200).json({
+      success: true,
+      data: { 
+        games,
+        total: games.length
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 
 
 /**

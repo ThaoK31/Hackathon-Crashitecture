@@ -1,51 +1,70 @@
-import api from "./api";
-
-export type TableCondition = "EXCELLENT" | "GOOD" | "WORN" | "NEEDS_MAINTENANCE";
+import api from './api';
 
 export interface Table {
   id: string;
   name: string;
-  location?: string;
-  condition?: TableCondition;
-  is_available?: boolean;
-  created_at?: string;
-  updated_at?: string;
+  location: string;
+  condition: 'EXCELLENT' | 'GOOD' | 'WORN' | 'NEEDS_MAINTENANCE';
+  is_available: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
-export const tablesService = {
-  // GET /api/tables
-  async getAllTables() {
-    const res = await api.get<Table[]>("/api/tables");
-    return res.data;
+export interface TableAvailability {
+  table_id: string;
+  is_available: boolean;
+  next_available_time?: string;
+  current_game_id?: string;
+}
+
+export interface CreateTableData {
+  name: string;
+  location: string;
+  condition: 'EXCELLENT' | 'GOOD' | 'WORN' | 'NEEDS_MAINTENANCE';
+  is_available: boolean;
+}
+
+export interface UpdateTableData {
+  name?: string;
+  location?: string;
+  condition?: 'EXCELLENT' | 'GOOD' | 'WORN' | 'NEEDS_MAINTENANCE';
+  is_available?: boolean;
+}
+
+export const tableService = {
+  // Récupérer toutes les tables
+  async getTables(): Promise<{ success: boolean; data: { tables: Table[] } }> {
+    const response = await api.get('/tables');
+    return response.data;
   },
 
-  // GET /api/tables/:id
-  async getTableById(id: string) {
-    const res = await api.get<Table>(`/api/tables/${id}`);
-    return res.data;
+  // Récupérer une table par ID
+  async getTableById(id: string): Promise<{ success: boolean; data: { table: Table } }> {
+    const response = await api.get(`/tables/${id}`);
+    return response.data;
   },
 
-  // GET /api/tables/:id/availability?start_time&end_time
-  async getTableAvailability(id: string, params?: { start_time?: string; end_time?: string }) {
-    const res = await api.get(`/api/tables/${id}/availability`, { params });
-    return res.data; // define type if you have it
+  // Récupérer la disponibilité d'une table
+  async getTableAvailability(id: string): Promise<{ success: boolean; data: TableAvailability }> {
+    const response = await api.get(`/tables/${id}/availability`);
+    return response.data;
   },
 
-  // POST /api/tables (admin, auth)
-  async createTable(payload: Partial<Table>) {
-    const res = await api.post<Table>("/api/tables", payload);
-    return res.data;
+  // Créer une nouvelle table (admin)
+  async createTable(data: CreateTableData): Promise<{ success: boolean; data: { table: Table } }> {
+    const response = await api.post('/tables', data);
+    return response.data;
   },
 
-  // PUT /api/tables/:id (admin, auth)
-  async updateTable(id: string, payload: Partial<Table>) {
-    const res = await api.put<Table>(`/api/tables/${id}`, payload);
-    return res.data;
+  // Mettre à jour une table (admin)
+  async updateTable(id: string, data: UpdateTableData): Promise<{ success: boolean; data: { table: Table } }> {
+    const response = await api.put(`/tables/${id}`, data);
+    return response.data;
   },
 
-  // DELETE /api/tables/:id (admin, auth)
-  async deleteTable(id: string) {
-    const res = await api.delete<{ success: boolean }>(`/api/tables/${id}`);
-    return res.data;
-  },
+  // Supprimer une table (admin)
+  async deleteTable(id: string): Promise<{ success: boolean; message: string }> {
+    const response = await api.delete(`/tables/${id}`);
+    return response.data;
+  }
 };

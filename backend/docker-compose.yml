@@ -57,6 +57,31 @@ services:
       - /app/node_modules
     command: npm start
 
+  # Service pour seeder la base de données
+  seed:
+    build: .
+    container_name: babyfoot_seed
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      NODE_ENV: development
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: babyfoot_db
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run seed
+    profiles:
+      - seed
+
 volumes:
   postgres_data:
   redis_data:

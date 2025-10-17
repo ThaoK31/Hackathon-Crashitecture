@@ -1,40 +1,47 @@
-import api from "./api";
+import api from './api';
 
 export interface User {
   id: string;
   email: string;
   username: string;
-  role: "USER" | "ADMIN";
+  role: 'USER' | 'ADMIN';
+  created_at: string;
+  updated_at: string;
 }
 
-export const usersService = {
-  // GET /api/users (admin, auth)
-  async getAllUsers() {
-    const res = await api.get<User[]>("/api/users");
-    return res.data;
+export interface UpdateUserData {
+  email?: string;
+  username?: string;
+}
+
+export const userService = {
+  // Récupérer tous les utilisateurs (admin)
+  async getAllUsers(): Promise<{ success: boolean; data: { users: User[] } }> {
+    const response = await api.get('/users');
+    return response.data;
   },
 
-  // GET /api/users/:id (owner or admin, auth)
-  async getUserById(id: string) {
-    const res = await api.get<User>(`/api/users/${id}`);
-    return res.data;
+  // Récupérer un utilisateur par ID
+  async getUserById(id: string): Promise<{ success: boolean; data: { user: User } }> {
+    const response = await api.get(`/users/${id}`);
+    return response.data;
   },
 
-  // PUT /api/users/:id (owner or admin, auth)
-  async updateUser(id: string, payload: Partial<Pick<User, "email" | "username">>) {
-    const res = await api.put<User>(`/api/users/${id}`, payload);
-    return res.data;
+  // Mettre à jour un utilisateur
+  async updateUser(id: string, data: UpdateUserData): Promise<{ success: boolean; data: { user: User } }> {
+    const response = await api.put(`/users/${id}`, data);
+    return response.data;
   },
 
-  // DELETE /api/users/:id (admin, auth)
-  async deleteUser(id: string) {
-    const res = await api.delete<{ success: boolean }>(`/api/users/${id}`);
-    return res.data;
+  // Supprimer un utilisateur
+  async deleteUser(id: string): Promise<{ success: boolean; message: string }> {
+    const response = await api.delete(`/users/${id}`);
+    return response.data;
   },
 
-  // PATCH /api/users/:id/role (admin, auth)
-  async changeUserRole(id: string, role: "USER" | "ADMIN") {
-    const res = await api.patch<User>(`/api/users/${id}/role`, { role });
-    return res.data;
-  },
+  // Changer le rôle d'un utilisateur
+  async changeUserRole(id: string, role: 'USER' | 'ADMIN'): Promise<{ success: boolean; data: { user: User } }> {
+    const response = await api.post(`/users/${id}/role`, { role });
+    return response.data;
+  }
 };
