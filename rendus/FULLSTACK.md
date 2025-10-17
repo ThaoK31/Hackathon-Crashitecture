@@ -147,6 +147,33 @@
 - Optimisation des requêtes SQL et mise en place d'index
 - Système de classement et rating des joueurs
 
+## Captures d'écran
+
+### Interface Utilisateur
+
+#### Page d'accueil
+![Page d'accueil](./screenshots/home.png)
+
+#### Page des tables
+![Page des tables](./screenshots/tables.png)
+
+#### Page des réservation
+![Modal de réservation](./screenshots/reservation.png)
+
+#### Page des parties en cours
+![Page des parties](./screenshots/Parties.png)
+
+#### Page de l'historique
+![Page de l'historique](./screenshots/Historique.png)
+
+### Interface Administrateur
+
+#### Dashboard Admin - Gestion des réservations
+![Dashboard Admin - Réservations](./screenshots/reservation_admin.png)
+
+#### Dashboard Admin - Gestion des tables
+![Dashboard Admin - Tables](./screenshots/tables_admin.png)
+
 ## Conclusion
 
 On a réussi à créer une application complète et fonctionnelle avec les fonctionnalités essentielles. Le code est structuré, documenté et maintenable. On a aussi pu collaborer efficacement avec les autres équipes pour intégrer leurs fonctionnalités.
