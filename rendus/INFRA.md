@@ -26,7 +26,7 @@ Host sécurisé et protégé :
 Déploiement du site via une stack apache2 et nginx.
 -> Apache2 porte le rôle de serveur web, exposant ses services sur le port http.
 -> Nginx porte le rôle de reverse proxy, il expose les services du serveur web sur le port 443 via https. le certificat ssl est autosignée. (prévoir en évolution de faire un certificat valide avec nom de domaine)
----
+
 Base de données :
 ---
 2 bases de données pour l'hébergement :
