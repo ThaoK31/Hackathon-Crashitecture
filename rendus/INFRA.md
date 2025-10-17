@@ -2,9 +2,9 @@
 
 ## Equipe
 
-- Cloud & Infra 2 : Mathis Dubaille  
-- Cloud & Infra 1 : NOM Prénom
-- Cloud & Infra : NOM Prénom
+- Cloud & Infra  : DUBAILLE Mathis 
+- Cloud & Infra  : LOUCIF Inasse 
+- Cloud & Infra : SELLIER Louis
   
 Objectif général
 ---
@@ -67,3 +67,19 @@ Evolution possible :
 -> Hébérgement sur le cloud. Gérer la migration des données vers le cloud.
 -> Dimensionnement automatique de l'infra.
 -> Mise en conformité des données avec l'anssi (Stockage de données personnel type adresse mail, nom, prénom) 
+
+## Déploiement automatisé (Docker + Ansible)
+
+L’application Babynov, son backend, frontend et bases (Postgres, Redis) sont dockerisés en local. Le déploiement est automatisé via Ansible, intégré dans un pipeline GitHub Actions qui déclenche la mise à jour à chaque commit.
+
+### Playbook Ansible de déploiement :
+
+- Création du dossier `/home/ubuntu/babynov` sur la VM.
+- Copie de tous les fichiers nécessaires (code, Docker Compose).
+- Installation de Docker & Docker Compose si besoin.
+- Lancement de la stack Docker Compose pour builder et démarrer les containers backend, frontend, Postgres et Redis.
+- Vérification que les containers sont bien lancés et affichage des logs.
+- Création et initialisation de la base PostgreSQL.
+---
+
+Cette automatisation réduit au maximum l’effort nécessaire pour déployer et mettre à jour ton application dans un environnement sécurisé, dockerisé et monitoré.
