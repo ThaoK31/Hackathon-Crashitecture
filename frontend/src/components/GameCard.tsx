@@ -16,6 +16,7 @@ interface Game {
     assists: number;
     saves: number;
     user: {
+      id: string;
       username: string;
     };
   }>;
@@ -25,12 +26,14 @@ interface GameCardProps {
   game: Game;
   isExpanded: boolean;
   onToggle: () => void;
+  currentUserId?: string;
 }
 
 export default function GameCard({
   game,
   isExpanded,
   onToggle,
+  currentUserId,
 }: GameCardProps) {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -43,27 +46,33 @@ export default function GameCard({
     });
   };
 
-  const getResult = () => {
-    if (game.team_red_score > game.team_blue_score) {
-      return {
-        winner: "RED",
-        score: `${game.team_red_score} - ${game.team_blue_score}`,
-      };
-    } else if (game.team_blue_score > game.team_red_score) {
-      return {
-        winner: "BLUE",
-        score: `${game.team_red_score} - ${game.team_blue_score}`,
-      };
-    } else {
-      return {
-        winner: "DRAW",
-        score: `${game.team_red_score} - ${game.team_blue_score}`,
-      };
-    }
+  // Calculer le statut de l'utilisateur connecté
+  const getUserGameStatus = () => {
+    if (!currentUserId)
+      return { won: false, userScore: "0-0", team: "UNKNOWN" };
+
+    const userPlayer = game.players.find(
+      (player) => player.user.id === currentUserId
+    );
+    if (!userPlayer) return { won: false, userScore: "0-0", team: "UNKNOWN" };
+
+    const userTeam = userPlayer.team_color;
+    const userScore =
+      userTeam === "RED" ? game.team_red_score : game.team_blue_score;
+    const opponentScore =
+      userTeam === "RED" ? game.team_blue_score : game.team_red_score;
+    const won = userScore > opponentScore;
+
+    return {
+      won,
+      userScore: `${userScore}-${opponentScore}`,
+      team: userTeam,
+    };
   };
 
-  const result = getResult();
-  const isVictory = result.winner === "RED" || result.winner === "BLUE";
+  const userStatus = getUserGameStatus();
+  const isVictory = userStatus.won;
+  const userScore = userStatus.userScore;
 
   const redPlayers = game.players.filter((p) => p.team_color === "RED");
   const bluePlayers = game.players.filter((p) => p.team_color === "BLUE");
@@ -88,9 +97,9 @@ export default function GameCard({
   return (
     <div
       className={`card cursor-pointer transition-all duration-300 hover:bg-white/15 hover:shadow-2xl active:scale-[0.99] shadow-xl ${
-        result.winner === "RED"
+        userStatus.team === "RED"
           ? "border-l-4 border-red-500"
-          : result.winner === "BLUE"
+          : userStatus.team === "BLUE"
           ? "border-l-4 border-blue-500"
           : "border-l-4 border-slate-500"
       }`}
@@ -110,14 +119,16 @@ export default function GameCard({
                 {game.table.location} • {formatDate(game.ended_at)} •{" "}
                 {getGameDuration()}
               </p>
-              {result.winner !== "DRAW" && (
+              {userStatus.team !== "UNKNOWN" && (
                 <div className="flex items-center gap-1 mt-1">
                   <span
                     className={`text-xs font-medium ${
-                      result.winner === "RED" ? "text-red-400" : "text-blue-400"
+                      userStatus.team === "RED"
+                        ? "text-red-400"
+                        : "text-blue-400"
                     }`}
                   >
-                    🏆 Équipe {result.winner === "RED" ? "Rouge" : "Bleue"}{" "}
+                    🏆 Équipe {userStatus.team === "RED" ? "Rouge" : "Bleue"}{" "}
                     gagnante
                   </span>
                 </div>
@@ -128,7 +139,7 @@ export default function GameCard({
           <div className="flex items-center gap-4">
             <div className="text-right">
               <p className="text-3xl font-bold bg-gradient-to-r from-white to-slate-300 bg-clip-text text-transparent">
-                {result.score}
+                {userScore}
               </p>
               <div
                 className={`px-3 py-1 rounded-full text-sm font-medium ${

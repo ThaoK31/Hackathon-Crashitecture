@@ -5,6 +5,14 @@ import { authService } from './services/authService';
 import LoginPage from './pages/Login';
 import HomePage from './pages/Home';
 import HistoryPage from './pages/History';
+import TablesPage from './pages/Tables';
+import ReservationsPage from './pages/Reservations';
+import GamesPage from './pages/Games';
+import ManageTablesPage from './pages/admin/ManageTables';
+import ManageUsersPage from './pages/admin/ManageUsers';
+import ManageReservationsPage from './pages/admin/ManageReservations';
+import ManageGamesPage from './pages/admin/ManageGames';
+import StatsPage from './pages/admin/Stats';
 import NavBar from './components/NavBar';
 
 function App() {
@@ -84,6 +92,38 @@ function App() {
             <Route 
               path="/history" 
               element={<HistoryPage />}
+            />
+            <Route 
+              path="/tables" 
+              element={<TablesPage />}
+            />
+            <Route 
+              path="/reservations" 
+              element={<ReservationsPage />}
+            />
+            <Route 
+              path="/games" 
+              element={<GamesPage />}
+            />
+            <Route 
+              path="/admin/tables" 
+              element={<ManageTablesPage />}
+            />
+            <Route 
+              path="/admin/users" 
+              element={<ManageUsersPage />}
+            />
+            <Route 
+              path="/admin/reservations" 
+              element={<ManageReservationsPage />}
+            />
+            <Route 
+              path="/admin/games" 
+              element={<ManageGamesPage />}
+            />
+            <Route 
+              path="/admin/stats" 
+              element={<StatsPage />}
             />
             <Route 
               path="*" 

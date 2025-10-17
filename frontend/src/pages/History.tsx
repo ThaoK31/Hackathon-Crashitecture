@@ -18,6 +18,7 @@ interface Game {
     assists: number;
     saves: number;
     user: {
+      id: string;
       username: string;
     };
   }>;
@@ -30,12 +31,64 @@ export default function HistoryPage() {
   const [expandedGameId, setExpandedGameId] = useState<string | null>(null);
   const [filter, setFilter] = useState<"all" | "victories" | "defeats">("all");
   const [searchTerm, setSearchTerm] = useState("");
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+
+  // Fonction pour calculer le statut de l'utilisateur connecté
+  const getUserGameStatus = (game: Game) => {
+    console.log("getUserGameStatus - currentUserId:", currentUserId);
+    console.log("getUserGameStatus - game.players:", game.players);
+
+    // Trouver le joueur correspondant à l'utilisateur connecté
+    const userPlayer = game.players.find(
+      (player) => player.user.id === currentUserId
+    );
+
+    console.log("getUserGameStatus - userPlayer:", userPlayer);
+
+    if (!userPlayer) return { won: false, userScore: "0-0", team: "UNKNOWN" };
+
+    const userTeam = userPlayer.team_color;
+    const userScore =
+      userTeam === "RED" ? game.team_red_score : game.team_blue_score;
+    const opponentScore =
+      userTeam === "RED" ? game.team_blue_score : game.team_red_score;
+    const won = userScore > opponentScore;
+
+    console.log("getUserGameStatus - result:", {
+      won,
+      userScore: `${userScore}-${opponentScore}`,
+      team: userTeam,
+    });
+
+    return {
+      won,
+      userScore: `${userScore}-${opponentScore}`,
+      team: userTeam,
+    };
+  };
 
   useEffect(() => {
     const fetchGames = async () => {
       try {
         setIsLoading(true);
         setError(null);
+
+        // Récupérer l'utilisateur connecté
+        const userResponse = await fetch(
+          "http://localhost:3000/api/auth/profile",
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          console.log("User data:", userData); // Debug
+          setCurrentUserId(userData.data.user.id);
+        }
+
         const response = await gameService.getHistory();
         setGames(response.data.games);
       } catch (err: any) {
@@ -55,10 +108,11 @@ export default function HistoryPage() {
 
   // Filtrer les parties
   const filteredGames = games.filter((game) => {
+    const userStatus = getUserGameStatus(game);
     const matchesFilter =
       filter === "all" ||
-      (filter === "victories" && game.team_red_score > game.team_blue_score) ||
-      (filter === "defeats" && game.team_red_score < game.team_blue_score);
+      (filter === "victories" && userStatus.won) ||
+      (filter === "defeats" && !userStatus.won);
 
     const matchesSearch =
       searchTerm === "" ||
@@ -265,6 +319,7 @@ export default function HistoryPage() {
                   game={game}
                   isExpanded={expandedGameId === game.id}
                   onToggle={() => handleToggleGame(game.id)}
+                  currentUserId={currentUserId}
                 />
               </div>
             ))
