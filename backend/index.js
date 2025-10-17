@@ -1,4 +1,5 @@
 import express from 'express';
+import { createServer } from 'http';
 import dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from 'morgan';
@@ -7,6 +8,8 @@ import swaggerSpec from './config/swagger.js';
 import { sequelize } from './models/index.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 import redis, { pingRedis } from './config/redis.js';
+import { initializeSocket } from './config/socket.js';
+import socketService from './services/socketService.js';
 
 // Routes
 import authRoutes from './routes/auth.js';
@@ -19,7 +22,15 @@ import statsRoutes from './routes/stats.js';
 dotenv.config();
 
 const app = express();
+const httpServer = createServer(app);
 const PORT = process.env.PORT || 3000;
+
+// Initialiser Socket.io
+const io = initializeSocket(httpServer);
+socketService.initialize(io);
+
+// Rendre io accessible dans les requêtes
+app.set('io', io);
 
 // Middlewares
 app.use(cors({
@@ -69,7 +80,8 @@ app.get('/', (req, res) => {
 app.get('/health', async (req, res) => {
   const services = {
     database: 'disconnected',
-    redis: 'disconnected'
+    redis: 'disconnected',
+    websocket: 'disconnected'
   };
 
   try {
@@ -81,12 +93,18 @@ app.get('/health', async (req, res) => {
     const redisConnected = await pingRedis();
     services.redis = redisConnected ? 'connected' : 'disconnected';
 
-    const isHealthy = services.database === 'connected' && services.redis === 'connected';
+    // Vérifier WebSocket
+    services.websocket = io ? 'connected' : 'disconnected';
+
+    const isHealthy = services.database === 'connected' && services.redis === 'connected' && services.websocket === 'connected';
 
     res.status(isHealthy ? 200 : 503).json({
       success: isHealthy,
       status: isHealthy ? 'healthy' : 'degraded',
       services,
+      websocket: {
+        connectedClients: io.engine.clientsCount || 0
+      },
       timestamp: new Date().toISOString()
     });
   } catch (error) {
@@ -136,11 +154,12 @@ const startServer = async () => {
             console.warn('Redis non disponible - L\'application continuera sans cache');
         }
 
-        // Démarrer le serveur
-        app.listen(PORT, () => {
+        // Démarrer le serveur HTTP avec WebSocket
+        httpServer.listen(PORT, () => {
             console.log(`Serveur démarré sur le port ${PORT}`);
             console.log(`Documentation disponible sur http://localhost:${PORT}/api-docs`);
             console.log(`Health check: http://localhost:${PORT}/health`);
+            console.log(`WebSocket activé et prêt`);
             console.log(`Prêt pour le hackathon !`);
         });
     } catch (error) {
