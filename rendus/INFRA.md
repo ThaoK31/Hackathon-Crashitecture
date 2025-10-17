@@ -52,6 +52,9 @@ Surveillance et journalisation :
       -> Taille stockage
       -> Connexion active
 
+ Schéma Réseau :     
+<img width="739" height="618" alt="image" src="https://github.com/user-attachments/assets/d8ef9a01-df3f-43d5-96af-383f8aba2033" />
+
 ========================================================================================================================================
 
 Haute disponibilités :
