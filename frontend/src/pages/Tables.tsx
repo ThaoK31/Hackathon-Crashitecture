@@ -3,6 +3,7 @@ import { Table, tableService } from "../services/tables";
 import {
   CreateReservationData,
   reservationService,
+  Reservation,
 } from "../services/reservations";
 import { Game, gameService } from "../services/games";
 import TableCard from "../components/TableCard";
@@ -11,6 +12,7 @@ import ReservationModal from "../components/ReservationModal";
 export default function TablesPage() {
   const [tables, setTables] = useState<Table[]>([]);
   const [games, setGames] = useState<Game[]>([]);
+  const [reservations, setReservations] = useState<Reservation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isReservationModalOpen, setIsReservationModalOpen] = useState(false);
@@ -31,6 +33,7 @@ export default function TablesPage() {
       setIsLoading(true);
       setError(null);
 
+      // Charger les tables et les parties
       const [tablesResponse, gamesResponse] = await Promise.all([
         tableService.getTables(),
         gameService.getLiveGames(),
@@ -38,6 +41,21 @@ export default function TablesPage() {
 
       setTables(tablesResponse.data.tables);
       setGames(gamesResponse.data.games);
+
+      // Essayer de charger toutes les réservations (admin only)
+      // Si l'utilisateur n'est pas admin, on ignore l'erreur
+      try {
+        const reservationsResponse = await reservationService.getAllReservations();
+        setReservations(reservationsResponse.data.reservations);
+      } catch (reservationErr: any) {
+        // Si 403 (Forbidden), l'utilisateur n'est pas admin, c'est normal
+        if (reservationErr.response?.status === 403) {
+          console.log("Utilisateur non-admin : affichage des tables sans réservations détaillées");
+          setReservations([]);
+        } else {
+          console.error("Erreur lors du chargement des réservations:", reservationErr);
+        }
+      }
     } catch (err: any) {
       console.error("Erreur lors du chargement des tables:", err);
       setError("Erreur lors du chargement des tables");
@@ -71,7 +89,7 @@ export default function TablesPage() {
     // Calculer le statut réel de la table
     const isMaintenance = table.condition === "NEEDS_MAINTENANCE";
     const hasOngoingGame = games.some(
-      (game) => game.table_id === table.id && !game.is_finished
+      (game) => game.table_id === table.id && game.status === "ONGOING"
     );
     const isAvailable = !isMaintenance && !hasOngoingGame && table.is_available;
     const isOccupied = hasOngoingGame;
@@ -188,14 +206,20 @@ export default function TablesPage() {
 
         {/* Liste des tables */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredTables.map((table) => (
-            <TableCard
-              key={table.id}
-              table={table}
-              games={games}
-              onReserve={handleReserveTable}
-            />
-          ))}
+          {filteredTables.map((table) => {
+            const tableReservations = reservations.filter(
+              (r) => r.table_id === table.id && r.status === "ACTIVE"
+            );
+            return (
+              <TableCard
+                key={table.id}
+                table={table}
+                games={games}
+                reservations={tableReservations}
+                onReserve={handleReserveTable}
+              />
+            );
+          })}
         </div>
 
         {filteredTables.length === 0 && !isLoading && (

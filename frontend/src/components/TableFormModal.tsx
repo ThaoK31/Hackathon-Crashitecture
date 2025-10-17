@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Table, CreateTableData, UpdateTableData } from "../services/tables";
+import { tableSchema, type TableFormData } from "../schemas";
 
 interface TableFormModalProps {
   isOpen: boolean;
@@ -16,7 +17,7 @@ export default function TableFormModal({
   table,
   isLoading = false,
 }: TableFormModalProps) {
-  const [formData, setFormData] = useState<CreateTableData>({
+  const [formData, setFormData] = useState<TableFormData>({
     name: "",
     location: "",
     condition: "GOOD",
@@ -46,19 +47,17 @@ export default function TableFormModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validation
-    const newErrors: Record<string, string> = {};
+    // Validation avec Zod
+    const result = tableSchema.safeParse(formData);
 
-    if (!formData.name.trim()) {
-      newErrors.name = "Le nom est requis";
-    }
-
-    if (!formData.location.trim()) {
-      newErrors.location = "La localisation est requise";
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+    if (!result.success) {
+      const formattedErrors: Record<string, string> = {};
+      result.error.issues.forEach((err) => {
+        if (err.path[0]) {
+          formattedErrors[err.path[0] as string] = err.message;
+        }
+      });
+      setErrors(formattedErrors);
       return;
     }
 
@@ -75,6 +74,11 @@ export default function TableFormModal({
     });
     setErrors({});
     onClose();
+  };
+
+  // Fonction pour obtenir les erreurs de champ
+  const getFieldError = (field: string): string | undefined => {
+    return errors[field];
   };
 
   if (!isOpen) return null;
@@ -108,8 +112,10 @@ export default function TableFormModal({
               className="w-full bg-slate-800/50 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Table 1"
             />
-            {errors.name && (
-              <p className="text-red-400 text-sm mt-1">{errors.name}</p>
+            {getFieldError("name") && (
+              <p className="text-red-400 text-sm mt-1">
+                {getFieldError("name")}
+              </p>
             )}
           </div>
 
@@ -126,8 +132,10 @@ export default function TableFormModal({
               className="w-full bg-slate-800/50 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Salle A, Niveau 1"
             />
-            {errors.location && (
-              <p className="text-red-400 text-sm mt-1">{errors.location}</p>
+            {getFieldError("location") && (
+              <p className="text-red-400 text-sm mt-1">
+                {getFieldError("location")}
+              </p>
             )}
           </div>
 

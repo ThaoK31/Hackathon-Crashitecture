@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { Game, gameService } from "../services/games";
 import { Table, tableService } from "../services/tables";
 import { Reservation, reservationService } from "../services/reservations";
@@ -7,6 +8,7 @@ import { authService } from "../services/authService";
 import CreateGameModal from "../components/CreateGameModal";
 
 export default function GamesPage() {
+  const location = useLocation();
   const [games, setGames] = useState<Game[]>([]);
   const [tables, setTables] = useState<Table[]>([]);
   const [myReservations, setMyReservations] = useState<Reservation[]>([]);
@@ -17,6 +19,8 @@ export default function GamesPage() {
   const [isCreatingGame, setIsCreatingGame] = useState(false);
   const [isUpdatingScore, setIsUpdatingScore] = useState<string | null>(null);
   const [isEndingGame, setIsEndingGame] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [preselectedTableId, setPreselectedTableId] = useState<string | undefined>(undefined);
 
   // Filtres
   const [searchTerm, setSearchTerm] = useState("");
@@ -25,10 +29,29 @@ export default function GamesPage() {
     fetchData();
   }, []);
 
+  // Ouvrir le modal de création de partie si on vient d'une réservation
+  useEffect(() => {
+    if (location.state?.openCreateModal) {
+      setIsCreateGameModalOpen(true);
+      // Pré-sélectionner la table si elle est fournie
+      if (location.state?.selectedTableId) {
+        setPreselectedTableId(location.state.selectedTableId);
+      }
+      // Nettoyer le state pour éviter de rouvrir le modal à chaque navigation
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
   const fetchData = async () => {
     try {
       setIsLoading(true);
       setError(null);
+
+      // Charger l'utilisateur connecté
+      const user = authService.getCurrentUser();
+      if (user) {
+        setCurrentUser(user as User);
+      }
 
       // Charger les données essentielles
       const [gamesResponse, tablesResponse, reservationsResponse] =
@@ -164,6 +187,12 @@ export default function GamesPage() {
     });
   };
 
+  // Vérifier si l'utilisateur connecté participe à une partie
+  const isUserInGame = (game: Game) => {
+    if (!currentUser) return false;
+    return game.players?.some((player) => player.user.id === currentUser.id);
+  };
+
   const filteredGames = games.filter((game) => {
     const matchesSearch =
       searchTerm === "" ||
@@ -244,25 +273,38 @@ export default function GamesPage() {
 
         {/* Liste des parties */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {filteredGames.map((game) => (
-            <div
-              key={game.id}
-              className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl p-6 hover:bg-white/10 transition-all duration-300"
-            >
-              <div className="mb-4">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-semibold text-white">
-                    {game.table?.name || "Table inconnue"}
-                  </h3>
-                  <span className="text-sm text-slate-400">
-                    {formatDateTime(game.created_at)}
-                  </span>
-                </div>
+          {filteredGames.map((game) => {
+            const userInGame = isUserInGame(game);
+            return (
+              <div
+                key={game.id}
+                className={`bg-white/5 backdrop-blur-xl border rounded-xl p-6 hover:bg-white/10 transition-all duration-300 ${
+                  userInGame
+                    ? "border-l-4 border-l-green-500 border-t border-r border-b border-green-500/30 shadow-lg shadow-green-500/20"
+                    : "border border-white/10"
+                }`}
+              >
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-lg font-semibold text-white">
+                        {game.table?.name || "Table inconnue"}
+                      </h3>
+                      {userInGame && (
+                        <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full border border-green-500/30">
+                          🎮 Vous jouez
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-sm text-slate-400">
+                      {formatDateTime(game.created_at)}
+                    </span>
+                  </div>
 
-                <p className="text-slate-400 text-sm">
-                  📍 {game.table?.location || "Localisation inconnue"}
-                </p>
-              </div>
+                  <p className="text-slate-400 text-sm">
+                    📍 {game.table?.location || "Localisation inconnue"}
+                  </p>
+                </div>
 
               {/* Score */}
               <div className="bg-slate-800/30 border border-white/10 rounded-lg p-4 mb-4">
@@ -295,16 +337,28 @@ export default function GamesPage() {
                     <button
                       onClick={() => handleUpdateScore(game.id, "red", false)}
                       disabled={
-                        isUpdatingScore === game.id || game.team_red_score === 0
+                        !userInGame ||
+                        isUpdatingScore === game.id ||
+                        game.team_red_score === 0
                       }
-                      className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-2 py-1 rounded text-sm font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-2 py-1 rounded text-sm font-medium transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed"
+                      title={
+                        !userInGame
+                          ? "Vous ne participez pas à cette partie"
+                          : ""
+                      }
                     >
                       -
                     </button>
                     <button
                       onClick={() => handleUpdateScore(game.id, "red", true)}
-                      disabled={isUpdatingScore === game.id}
-                      className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-2 py-1 rounded text-sm font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={!userInGame || isUpdatingScore === game.id}
+                      className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-2 py-1 rounded text-sm font-medium transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed"
+                      title={
+                        !userInGame
+                          ? "Vous ne participez pas à cette partie"
+                          : ""
+                      }
                     >
                       +
                     </button>
@@ -319,17 +373,28 @@ export default function GamesPage() {
                     <button
                       onClick={() => handleUpdateScore(game.id, "blue", false)}
                       disabled={
+                        !userInGame ||
                         isUpdatingScore === game.id ||
                         game.team_blue_score === 0
                       }
-                      className="flex-1 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 px-2 py-1 rounded text-sm font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="flex-1 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 px-2 py-1 rounded text-sm font-medium transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed"
+                      title={
+                        !userInGame
+                          ? "Vous ne participez pas à cette partie"
+                          : ""
+                      }
                     >
                       -
                     </button>
                     <button
                       onClick={() => handleUpdateScore(game.id, "blue", true)}
-                      disabled={isUpdatingScore === game.id}
-                      className="flex-1 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 px-2 py-1 rounded text-sm font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                      disabled={!userInGame || isUpdatingScore === game.id}
+                      className="flex-1 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 border border-blue-500/20 px-2 py-1 rounded text-sm font-medium transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed"
+                      title={
+                        !userInGame
+                          ? "Vous ne participez pas à cette partie"
+                          : ""
+                      }
                     >
                       +
                     </button>
@@ -343,29 +408,41 @@ export default function GamesPage() {
                   Joueurs
                 </div>
                 <div className="space-y-2">
-                  {game.players?.map((player, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between text-sm"
-                    >
-                      <div className="flex items-center gap-2">
-                        <span
-                          className={`w-2 h-2 rounded-full ${
-                            player.team_color === "RED"
-                              ? "bg-red-400"
-                              : "bg-blue-400"
-                          }`}
-                        ></span>
-                        <span className="text-white">
-                          {player.user.username}
-                        </span>
-                        <span className="text-slate-400">({player.role})</span>
+                  {game.players?.map((player, index) => {
+                    const isCurrentUser = currentUser && player.user.id === currentUser.id;
+                    return (
+                      <div
+                        key={index}
+                        className={`flex items-center justify-between text-sm p-2 rounded-lg transition-all ${
+                          isCurrentUser
+                            ? "bg-green-500/10 border border-green-500/20"
+                            : ""
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`w-2 h-2 rounded-full ${
+                              player.team_color === "RED"
+                                ? "bg-red-400"
+                                : "bg-blue-400"
+                            }`}
+                          ></span>
+                          <span className={`font-medium ${isCurrentUser ? "text-green-400" : "text-white"}`}>
+                            {player.user.username}
+                          </span>
+                          {isCurrentUser && (
+                            <span className="text-xs bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded border border-green-500/30">
+                              Vous
+                            </span>
+                          )}
+                          <span className="text-slate-400">({player.role})</span>
+                        </div>
+                        <div className="text-slate-400">
+                          {player.goals}⚽ {player.assists}🅰️ {player.saves}🛡️
+                        </div>
                       </div>
-                      <div className="text-slate-400">
-                        {player.goals}⚽ {player.assists}🅰️ {player.saves}🛡️
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
@@ -373,14 +450,20 @@ export default function GamesPage() {
               <div className="flex gap-2">
                 <button
                   onClick={() => handleEndGame(game.id)}
-                  disabled={isEndingGame === game.id}
-                  className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-3 py-2 rounded-lg font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={!userInGame || isEndingGame === game.id}
+                  className="flex-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 border border-red-500/20 px-3 py-2 rounded-lg font-medium transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed"
+                  title={
+                    !userInGame
+                      ? "Vous ne participez pas à cette partie"
+                      : ""
+                  }
                 >
                   {isEndingGame === game.id ? "Fin..." : "Terminer"}
                 </button>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         {filteredGames.length === 0 && !isLoading && (
@@ -409,12 +492,16 @@ export default function GamesPage() {
       {/* Modal de création de partie */}
       <CreateGameModal
         isOpen={isCreateGameModalOpen}
-        onClose={() => setIsCreateGameModalOpen(false)}
+        onClose={() => {
+          setIsCreateGameModalOpen(false);
+          setPreselectedTableId(undefined);
+        }}
         onSubmit={handleCreateGame}
         tables={tables}
         myReservations={myReservations}
         availableUsers={users}
         isLoading={isCreatingGame}
+        selectedTableId={preselectedTableId}
       />
     </div>
   );

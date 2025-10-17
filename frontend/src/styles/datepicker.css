@@ -1,0 +1,169 @@
+/* Styles personnalisés pour react-datepicker avec thème dark */
+
+.react-datepicker {
+  background-color: rgb(30 41 59) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0.5rem !important;
+  font-family: inherit !important;
+}
+
+.react-datepicker__header {
+  background-color: rgb(15 23 42) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0.5rem 0.5rem 0 0 !important;
+}
+
+.react-datepicker__current-month {
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+.react-datepicker__day-name {
+  color: rgb(148 163 184) !important;
+  font-weight: 500 !important;
+}
+
+.react-datepicker__day {
+  color: white !important;
+  border-radius: 0.375rem !important;
+}
+
+.react-datepicker__day:hover {
+  background-color: rgba(59, 130, 246, 0.3) !important;
+  color: white !important;
+}
+
+.react-datepicker__day--selected {
+  background: linear-gradient(135deg, rgb(59 130 246), rgb(147 51 234)) !important;
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+.react-datepicker__day--keyboard-selected {
+  background-color: rgba(59, 130, 246, 0.3) !important;
+  color: white !important;
+}
+
+.react-datepicker__day--disabled {
+  color: rgb(100 116 139) !important;
+  cursor: not-allowed !important;
+}
+
+.react-datepicker__day--disabled:hover {
+  background-color: transparent !important;
+}
+
+.react-datepicker__day--today {
+  font-weight: 600 !important;
+  color: rgb(59 130 246) !important;
+}
+
+.react-datepicker__day--outside-month {
+  color: rgb(71 85 105) !important;
+}
+
+.react-datepicker__navigation {
+  top: 10px !important;
+}
+
+.react-datepicker__navigation-icon::before {
+  border-color: white !important;
+}
+
+.react-datepicker__navigation:hover *::before {
+  border-color: rgb(59 130 246) !important;
+}
+
+/* Styles pour le sélecteur de temps */
+.react-datepicker__time-container {
+  border-left: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.react-datepicker__time-container .react-datepicker__time {
+  background-color: rgb(30 41 59) !important;
+}
+
+.react-datepicker__time-container .react-datepicker__time .react-datepicker__time-box {
+  width: 100% !important;
+}
+
+.react-datepicker__time-list-item {
+  color: white !important;
+  height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.react-datepicker__time-list-item:hover {
+  background-color: rgba(59, 130, 246, 0.3) !important;
+  color: white !important;
+}
+
+.react-datepicker__time-list-item--selected {
+  background: linear-gradient(135deg, rgb(59 130 246), rgb(147 51 234)) !important;
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+.react-datepicker__time-list-item--disabled {
+  color: rgb(100 116 139) !important;
+  cursor: not-allowed !important;
+}
+
+.react-datepicker__time-list-item--disabled:hover {
+  background-color: transparent !important;
+}
+
+/* Styles pour le header du sélecteur de temps */
+.react-datepicker__header--time {
+  background-color: rgb(15 23 42) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Styles pour le scrollbar */
+.react-datepicker__time-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.react-datepicker__time-list::-webkit-scrollbar-track {
+  background: rgb(15 23 42);
+}
+
+.react-datepicker__time-list::-webkit-scrollbar-thumb {
+  background: rgb(71 85 105);
+  border-radius: 4px;
+}
+
+.react-datepicker__time-list::-webkit-scrollbar-thumb:hover {
+  background: rgb(100 116 139);
+}
+
+/* Styles pour le bouton de fermeture */
+.react-datepicker__close-icon {
+  background-color: transparent !important;
+}
+
+.react-datepicker__close-icon::after {
+  background-color: white !important;
+  color: white !important;
+}
+
+/* Styles pour le triangle de pointe */
+.react-datepicker-popper {
+  z-index: 9999 !important;
+}
+
+.react-datepicker__triangle {
+  display: none !important;
+}
+
+/* Animation */
+.react-datepicker-popper[data-placement^="bottom"] .react-datepicker__triangle {
+  border-bottom-color: rgb(30 41 59) !important;
+}
+
+.react-datepicker-popper[data-placement^="top"] .react-datepicker__triangle {
+  border-top-color: rgb(30 41 59) !important;
+}
+

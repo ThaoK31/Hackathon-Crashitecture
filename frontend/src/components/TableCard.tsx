@@ -1,10 +1,12 @@
 import React from "react";
 import { Table } from "../services/tables";
 import { Game } from "../services/games";
+import { Reservation } from "../services/reservations";
 
 interface TableCardProps {
   table: Table;
   games: Game[];
+  reservations?: Reservation[];
   onReserve?: (tableId: string) => void;
   showReserveButton?: boolean;
 }
@@ -12,6 +14,7 @@ interface TableCardProps {
 export default function TableCard({
   table,
   games,
+  reservations = [],
   onReserve,
   showReserveButton = true,
 }: TableCardProps) {
@@ -28,7 +31,7 @@ export default function TableCard({
 
     // 2. Vérifier si une partie est en cours sur cette table
     const hasOngoingGame = games.some(
-      (game) => game.table_id === table.id && !game.is_finished
+      (game) => game.table_id === table.id && game.status === "ONGOING"
     );
 
     if (hasOngoingGame) {
@@ -122,6 +125,53 @@ export default function TableCard({
           </span>
         </div>
       </div>
+
+      {/* Affichage des réservations futures */}
+      {reservations.length > 0 && (
+        <div className="mt-4 pt-4 border-t border-white/10">
+          <div className="text-xs font-medium text-slate-400 mb-2">
+            📅 Réservations à venir
+          </div>
+          <div className="space-y-2">
+            {reservations.slice(0, 3).map((reservation) => {
+              const startDate = new Date(reservation.start_time);
+              const endDate = new Date(reservation.end_time);
+              return (
+                <div
+                  key={reservation.id}
+                  className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-2 text-xs"
+                >
+                  <div className="text-blue-400 font-medium">
+                    {startDate.toLocaleDateString("fr-FR", {
+                      day: "2-digit",
+                      month: "2-digit",
+                    })}{" "}
+                    {startDate.toLocaleTimeString("fr-FR", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                    {" - "}
+                    {endDate.toLocaleTimeString("fr-FR", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </div>
+                  {reservation.user && (
+                    <div className="text-slate-400 mt-1">
+                      👤 {reservation.user.username}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+            {reservations.length > 3 && (
+              <div className="text-xs text-slate-400 text-center">
+                + {reservations.length - 3} autre(s) réservation(s)
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {showReserveButton && status.canReserve && onReserve && (
         <button

@@ -55,7 +55,7 @@ services:
     volumes:
       - .:/app
       - /app/node_modules
-    command: npm start
+    command: npm run dev
 
   # Service pour seeder la base de données
   seed:

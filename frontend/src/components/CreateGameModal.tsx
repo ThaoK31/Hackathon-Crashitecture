@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Table } from "../services/tables";
 import { Reservation } from "../services/reservations";
 import { User } from "../services/users";
 import { CreateGamePayload, PlayerInput } from "../services/games";
+import { gameSchema, type GameFormData } from "../schemas";
 
 interface CreateGameModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface CreateGameModalProps {
   myReservations: Reservation[];
   availableUsers: User[];
   isLoading?: boolean;
+  selectedTableId?: string;
 }
 
 export default function CreateGameModal({
@@ -22,11 +24,19 @@ export default function CreateGameModal({
   myReservations,
   availableUsers,
   isLoading = false,
+  selectedTableId,
 }: CreateGameModalProps) {
-  const [formData, setFormData] = useState<CreateGamePayload>({
-    table_id: "",
+  const [formData, setFormData] = useState<GameFormData>({
+    table_id: selectedTableId || "",
     players: [],
   });
+
+  // Mettre à jour la table sélectionnée si elle change
+  useEffect(() => {
+    if (selectedTableId) {
+      setFormData((prev) => ({ ...prev, table_id: selectedTableId }));
+    }
+  }, [selectedTableId]);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -83,33 +93,16 @@ export default function CreateGameModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validation
-    const newErrors: Record<string, string> = {};
+    // Validation avec Zod
+    const result = gameSchema.safeParse(formData);
 
-    if (!formData.table_id) {
-      newErrors.table_id = "Veuillez sélectionner une table";
-    }
-
-    if (formData.players.length < 2) {
-      newErrors.players = "Au moins 2 joueurs sont requis";
-    }
-
-    // Vérifier que tous les joueurs ont un user_id
-    const hasEmptyPlayers = formData.players.some((player) => !player.user_id);
-    if (hasEmptyPlayers) {
-      newErrors.players = "Tous les joueurs doivent être sélectionnés";
-    }
-
-    // Vérifier qu'il n'y a pas de doublons
-    const userIds = formData.players.map((p) => p.user_id).filter(Boolean);
-    const uniqueUserIds = new Set(userIds);
-    if (userIds.length !== uniqueUserIds.size) {
-      newErrors.players =
-        "Un joueur ne peut pas être sélectionné plusieurs fois";
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+    if (!result.success) {
+      const formattedErrors: Record<string, string> = {};
+      result.error.issues.forEach((err) => {
+        const path = err.path.join(".");
+        formattedErrors[path] = err.message;
+      });
+      setErrors(formattedErrors);
       return;
     }
 
@@ -119,11 +112,16 @@ export default function CreateGameModal({
 
   const handleClose = () => {
     setFormData({
-      table_id: "",
+      table_id: selectedTableId || "",
       players: [],
     });
     setErrors({});
     onClose();
+  };
+
+  // Fonction pour obtenir les erreurs de champ
+  const getFieldError = (field: string): string | undefined => {
+    return errors[field];
   };
 
   if (!isOpen) return null;
@@ -182,8 +180,10 @@ export default function CreateGameModal({
                 </option>
               )}
             </select>
-            {errors.table_id && (
-              <p className="text-red-400 text-sm mt-1">{errors.table_id}</p>
+            {getFieldError("table_id") && (
+              <p className="text-red-400 text-sm mt-1">
+                {getFieldError("table_id")}
+              </p>
             )}
           </div>
 
@@ -299,8 +299,10 @@ export default function CreateGameModal({
               </div>
             ))}
 
-            {errors.players && (
-              <p className="text-red-400 text-sm mt-1">{errors.players}</p>
+            {getFieldError("players") && (
+              <p className="text-red-400 text-sm mt-1">
+                {getFieldError("players")}
+              </p>
             )}
           </div>
 
