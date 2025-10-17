@@ -172,7 +172,7 @@ export default function StatsPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {/* Parties */}
             <div className="bg-gradient-to-br from-blue-500/10 to-purple-500/10 backdrop-blur-xl border border-blue-500/20 rounded-xl p-6">
-              <div className="text-4xl mb-2">🏓</div>
+              <div className="text-4xl mb-2">⚽</div>
               <div className="text-3xl font-bold text-white mb-1">
                 {stats.games.total}
               </div>

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { Game, gameService } from "../services/games";
 import { Table, tableService } from "../services/tables";
+import { Reservation, reservationService } from "../services/reservations";
 import CreateGameModal from "../components/CreateGameModal";
 
 export default function GamesPage() {
   const [games, setGames] = useState<Game[]>([]);
   const [tables, setTables] = useState<Table[]>([]);
+  const [myReservations, setMyReservations] = useState<Reservation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isCreateGameModalOpen, setIsCreateGameModalOpen] = useState(false);
@@ -25,13 +27,16 @@ export default function GamesPage() {
       setIsLoading(true);
       setError(null);
 
-      const [gamesResponse, tablesResponse] = await Promise.all([
-        gameService.getLiveGames(),
-        tableService.getTables(),
-      ]);
+      const [gamesResponse, tablesResponse, reservationsResponse] =
+        await Promise.all([
+          gameService.getLiveGames(),
+          tableService.getTables(),
+          reservationService.getMyReservations(),
+        ]);
 
       setGames(gamesResponse.data.games);
       setTables(tablesResponse.data.tables);
+      setMyReservations(reservationsResponse.data.reservations);
     } catch (err: any) {
       console.error("Erreur lors du chargement des données:", err);
       setError("Erreur lors du chargement des données");
@@ -120,7 +125,7 @@ export default function GamesPage() {
       searchTerm === "" ||
       game.table?.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       game.table?.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      game.players.some((player) =>
+      game.players?.some((player) =>
         player.user.username.toLowerCase().includes(searchTerm.toLowerCase())
       );
 
@@ -294,7 +299,7 @@ export default function GamesPage() {
                   Joueurs
                 </div>
                 <div className="space-y-2">
-                  {game.players.map((player, index) => (
+                  {game.players?.map((player, index) => (
                     <div
                       key={index}
                       className="flex items-center justify-between text-sm"
@@ -336,7 +341,7 @@ export default function GamesPage() {
 
         {filteredGames.length === 0 && !isLoading && (
           <div className="text-center py-12">
-            <div className="text-6xl mb-4">🏓</div>
+            <div className="text-6xl mb-4">⚽</div>
             <h3 className="text-xl font-semibold text-white mb-2">
               Aucune partie en cours
             </h3>
@@ -363,6 +368,7 @@ export default function GamesPage() {
         onClose={() => setIsCreateGameModalOpen(false)}
         onSubmit={handleCreateGame}
         tables={tables}
+        myReservations={myReservations}
         availableUsers={[]} // TODO: Récupérer la liste des utilisateurs
         isLoading={isCreatingGame}
       />

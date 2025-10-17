@@ -206,7 +206,7 @@ export default function LoginPage() {
 
         {/* Bottom Text */}
         <p className="text-center text-slate-500 text-sm mt-8">
-          Hackathon Ynov Toulouse 2025 - Team Crashitecture 🏓
+          Hackathon Ynov Toulouse 2025 - Team Crashitecture ⚽
         </p>
       </div>
     </div>

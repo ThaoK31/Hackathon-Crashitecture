@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Table } from "../services/tables";
+import { Reservation } from "../services/reservations";
 import { CreateGamePayload, PlayerInput } from "../services/games";
 
 interface CreateGameModalProps {
@@ -7,6 +8,7 @@ interface CreateGameModalProps {
   onClose: () => void;
   onSubmit: (data: CreateGamePayload) => void;
   tables: Table[];
+  myReservations: Reservation[];
   availableUsers: Array<{ id: string; username: string; email: string }>;
   isLoading?: boolean;
 }
@@ -16,6 +18,7 @@ export default function CreateGameModal({
   onClose,
   onSubmit,
   tables,
+  myReservations,
   availableUsers,
   isLoading = false,
 }: CreateGameModalProps) {
@@ -25,6 +28,24 @@ export default function CreateGameModal({
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Filtrer les tables pour ne montrer que celles avec des réservations actives
+  const getAvailableTables = () => {
+    const now = new Date();
+    const activeReservations = myReservations.filter(
+      (reservation) =>
+        reservation.status === "ACTIVE" &&
+        new Date(reservation.start_time) <= now &&
+        new Date(reservation.end_time) >= now
+    );
+
+    const reservedTableIds = activeReservations.map(
+      (reservation) => reservation.table_id
+    );
+    return tables.filter((table) => reservedTableIds.includes(table.id));
+  };
+
+  const availableTables = getAvailableTables();
 
   const handleAddPlayer = () => {
     if (formData.players.length < 4) {
@@ -120,9 +141,25 @@ export default function CreateGameModal({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {availableTables.length === 0 && (
+            <div className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 px-4 py-3 rounded-lg text-sm">
+              ⚠️ Vous devez avoir une réservation active pour créer une partie.
+              <a
+                href="/reservations"
+                className="text-yellow-300 hover:text-yellow-200 underline ml-1"
+              >
+                Créer une réservation
+              </a>
+            </div>
+          )}
+
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">
-              Table
+              Table{" "}
+              {availableTables.length > 0 &&
+                `(${availableTables.length} disponible${
+                  availableTables.length > 1 ? "s" : ""
+                })`}
             </label>
             <select
               value={formData.table_id}
@@ -132,13 +169,17 @@ export default function CreateGameModal({
               className="w-full bg-slate-800/50 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Sélectionner une table</option>
-              {tables
-                .filter((table) => table.is_available)
-                .map((table) => (
+              {availableTables.length > 0 ? (
+                availableTables.map((table) => (
                   <option key={table.id} value={table.id}>
                     {table.name} - {table.location}
                   </option>
-                ))}
+                ))
+              ) : (
+                <option value="" disabled>
+                  Aucune table réservée disponible
+                </option>
+              )}
             </select>
             {errors.table_id && (
               <p className="text-red-400 text-sm mt-1">{errors.table_id}</p>
@@ -257,10 +298,14 @@ export default function CreateGameModal({
             </button>
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || availableTables.length === 0}
               className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-2 px-4 rounded-lg font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Création..." : "Créer la partie"}
+              {isLoading
+                ? "Création..."
+                : availableTables.length === 0
+                ? "Aucune table réservée"
+                : "Créer la partie"}
             </button>
           </div>
         </form>

@@ -156,7 +156,7 @@ export default function HistoryPage() {
         <div className="text-center mb-12 animate-fade-in">
           <div className="inline-block mb-4">
             <span className="text-6xl hover:rotate-12 transition-transform duration-300 cursor-pointer">
-              🏓
+              ⚽
             </span>
           </div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-4 animate-slide-up">

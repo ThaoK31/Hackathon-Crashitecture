@@ -109,7 +109,7 @@ export default function GameCard({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
-              <span className="text-white text-xl">🏓</span>
+              <span className="text-white text-xl">⚽</span>
             </div>
             <div>
               <h3 className="text-lg font-semibold text-white">
