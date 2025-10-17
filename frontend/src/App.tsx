@@ -8,6 +8,7 @@ import {
 import { useState, useEffect } from "react";
 import { authService } from "./services/authService";
 import LoginPage from "./pages/Login";
+import RegisterPage from "./pages/Register";
 import HomePage from "./pages/Home";
 import HistoryPage from "./pages/History";
 import TablesPage from "./pages/Tables";
@@ -83,7 +84,9 @@ function App() {
     <Router>
       <div className="App h-screen w-screen flex flex-col overflow-hidden">
         <NavBar
-          userRole={isAuthenticated ? user?.role || "user" : null}
+          userRole={
+            isAuthenticated ? (user?.role as "USER" | "ADMIN") || "USER" : null
+          }
           username={user?.username}
         />
         <div className="flex-1 overflow-auto">
@@ -101,6 +104,7 @@ function App() {
                 />
               }
             />
+            <Route path="/register" element={<RegisterPage />} />
             <Route path="/" element={<HomePage />} />
             <Route path="/history" element={<HistoryPage />} />
             <Route path="/tables" element={<TablesPage />} />

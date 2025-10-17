@@ -14,9 +14,13 @@ export interface UpdateUserData {
   username?: string;
 }
 
+export interface ChangeRoleData {
+  role: 'USER' | 'ADMIN';
+}
+
 export const userService = {
-  // Récupérer tous les utilisateurs (admin)
-  async getAllUsers(): Promise<{ success: boolean; data: { users: User[] } }> {
+  // Récupérer tous les utilisateurs
+  async getUsers(): Promise<{ success: boolean; data: { users: User[] } }> {
     const response = await api.get('/users');
     return response.data;
   },
@@ -33,15 +37,15 @@ export const userService = {
     return response.data;
   },
 
-  // Supprimer un utilisateur
+  // Supprimer un utilisateur (admin only)
   async deleteUser(id: string): Promise<{ success: boolean; message: string }> {
     const response = await api.delete(`/users/${id}`);
     return response.data;
   },
 
-  // Changer le rôle d'un utilisateur
-  async changeUserRole(id: string, role: 'USER' | 'ADMIN'): Promise<{ success: boolean; data: { user: User } }> {
-    const response = await api.post(`/users/${id}/role`, { role });
+  // Changer le rôle d'un utilisateur (admin only)
+  async changeUserRole(id: string, data: ChangeRoleData): Promise<{ success: boolean; data: { user: User } }> {
+    const response = await api.patch(`/users/${id}/role`, data);
     return response.data;
   }
 };

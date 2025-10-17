@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Table } from "../services/tables";
 import { Reservation } from "../services/reservations";
+import { User } from "../services/users";
 import { CreateGamePayload, PlayerInput } from "../services/games";
 
 interface CreateGameModalProps {
@@ -9,7 +10,7 @@ interface CreateGameModalProps {
   onSubmit: (data: CreateGamePayload) => void;
   tables: Table[];
   myReservations: Reservation[];
-  availableUsers: Array<{ id: string; username: string; email: string }>;
+  availableUsers: User[];
   isLoading?: boolean;
 }
 
@@ -190,16 +191,31 @@ export default function CreateGameModal({
             <div className="flex items-center justify-between mb-3">
               <label className="block text-sm font-medium text-slate-300">
                 Joueurs ({formData.players.length}/4)
+                {availableUsers.length > 0 && (
+                  <span className="text-xs text-slate-500 ml-2">
+                    ({availableUsers.length} utilisateur
+                    {availableUsers.length > 1 ? "s" : ""} disponible
+                    {availableUsers.length > 1 ? "s" : ""})
+                  </span>
+                )}
               </label>
               <button
                 type="button"
                 onClick={handleAddPlayer}
-                disabled={formData.players.length >= 4}
+                disabled={
+                  formData.players.length >= 4 || availableUsers.length === 0
+                }
                 className="text-blue-400 hover:text-blue-300 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 + Ajouter un joueur
               </button>
             </div>
+
+            {availableUsers.length === 0 && (
+              <div className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 px-4 py-3 rounded-lg text-sm mb-3">
+                ⚠️ Aucun utilisateur disponible. Vérifiez votre connexion.
+              </div>
+            )}
 
             {formData.players.map((player, index) => (
               <div

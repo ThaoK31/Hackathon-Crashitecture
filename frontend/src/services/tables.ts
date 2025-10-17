@@ -6,6 +6,7 @@ export interface Table {
   location: string;
   condition: 'EXCELLENT' | 'GOOD' | 'WORN' | 'NEEDS_MAINTENANCE';
   is_available: boolean;
+  has_ongoing_game?: boolean;
   created_at: string;
   updated_at: string;
 }

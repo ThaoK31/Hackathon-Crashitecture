@@ -1,8 +1,12 @@
 import React, { useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { authService } from "../services/authService";
 
-export default function LoginPage() {
+interface LoginPageProps {
+  onLoginSuccess?: () => void;
+}
+
+export default function LoginPage({ onLoginSuccess }: LoginPageProps) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -18,6 +22,7 @@ export default function LoginPage() {
     try {
       const response = await authService.login(email, password);
       console.log("Login success:", response);
+      onLoginSuccess?.();
       navigate("/");
     } catch (err: any) {
       const errorMessage =
@@ -38,11 +43,7 @@ export default function LoginPage() {
         {/* Header */}
         <div className="text-center mb-8 animate-fade-in">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl mb-4 animate-bounce-gentle">
-            <img
-              src="/logo-ynov-babyfoot.svg"
-              alt="Logo Babynov"
-              className="w-10 h-10"
-            />
+            <img src="/logo.png" alt="Logo Babynov" className="w-10 h-10" />
           </div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2">
             Babynov
@@ -195,12 +196,12 @@ export default function LoginPage() {
             <span className="text-slate-400 text-sm">
               Pas encore de compte ?{" "}
             </span>
-            <a
-              href="/register"
+            <Link
+              to="/register"
               className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
             >
               S'inscrire
-            </a>
+            </Link>
           </div>
         </div>
 

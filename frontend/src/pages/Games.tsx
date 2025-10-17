@@ -2,12 +2,15 @@ import React, { useState, useEffect } from "react";
 import { Game, gameService } from "../services/games";
 import { Table, tableService } from "../services/tables";
 import { Reservation, reservationService } from "../services/reservations";
+import { User, userService } from "../services/users";
+import { authService } from "../services/authService";
 import CreateGameModal from "../components/CreateGameModal";
 
 export default function GamesPage() {
   const [games, setGames] = useState<Game[]>([]);
   const [tables, setTables] = useState<Table[]>([]);
   const [myReservations, setMyReservations] = useState<Reservation[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isCreateGameModalOpen, setIsCreateGameModalOpen] = useState(false);
@@ -27,6 +30,7 @@ export default function GamesPage() {
       setIsLoading(true);
       setError(null);
 
+      // Charger les données essentielles
       const [gamesResponse, tablesResponse, reservationsResponse] =
         await Promise.all([
           gameService.getLiveGames(),
@@ -37,6 +41,46 @@ export default function GamesPage() {
       setGames(gamesResponse.data.games);
       setTables(tablesResponse.data.tables);
       setMyReservations(reservationsResponse.data.reservations);
+
+      // Charger les utilisateurs séparément (peut échouer sans bloquer le reste)
+      try {
+        const usersResponse = await userService.getUsers();
+        console.log("Réponse users:", usersResponse);
+        if (usersResponse?.data?.users) {
+          setUsers(usersResponse.data.users);
+          console.log(
+            "Utilisateurs chargés avec succès:",
+            usersResponse.data.users.length
+          );
+        }
+      } catch (userErr: any) {
+        console.error("Erreur lors du chargement des utilisateurs:", userErr);
+        console.error(
+          "Détails de l'erreur:",
+          userErr.response?.data || userErr.message
+        );
+
+        // Solution de secours : ajouter au moins l'utilisateur connecté
+        const currentUser = authService.getCurrentUser();
+        if (currentUser) {
+          console.log(
+            "Utilisation de l'utilisateur connecté comme fallback:",
+            currentUser
+          );
+          setUsers([
+            {
+              id: currentUser.id,
+              username: currentUser.username,
+              email: currentUser.email,
+              role: currentUser.role as "USER" | "ADMIN",
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            },
+          ]);
+        } else {
+          setUsers([]);
+        }
+      }
     } catch (err: any) {
       console.error("Erreur lors du chargement des données:", err);
       setError("Erreur lors du chargement des données");
@@ -369,7 +413,7 @@ export default function GamesPage() {
         onSubmit={handleCreateGame}
         tables={tables}
         myReservations={myReservations}
-        availableUsers={[]} // TODO: Récupérer la liste des utilisateurs
+        availableUsers={users}
         isLoading={isCreatingGame}
       />
     </div>

@@ -1,6 +1,6 @@
-import { Table, Reservation } from '../models/index.js';
+import { Table, Reservation, Game } from '../models/index.js';
 import { Op } from 'sequelize';
-import { RESERVATION_STATUS } from '../utils/constants.js';
+import { RESERVATION_STATUS, GAME_STATUS } from '../utils/constants.js';
 import { invalidateCache } from '../middleware/cache.js';
 
 // Récupérer toutes les tables
@@ -10,9 +10,26 @@ export const getAllTables = async (req, res, next) => {
       order: [['created_at', 'DESC']]
     });
 
+
+    const tablesWithGameStatus = await Promise.all(
+      tables.map(async (table) => {
+        const ongoingGame = await Game.findOne({
+          where: {
+            table_id: table.id,
+            status: GAME_STATUS.ONGOING
+          }
+        });
+
+        return {
+          ...table.toJSON(),
+          has_ongoing_game: !!ongoingGame
+        };
+      })
+    );
+
     res.status(200).json({
       success: true,
-      data: { tables }
+      data: { tables: tablesWithGameStatus }
     });
   } catch (error) {
     next(error);

@@ -49,7 +49,15 @@ export default function HomePage() {
     }
   };
 
-  const availableTables = tables.filter((t) => t.is_available).length;
+  const availableTables = tables.filter(
+    (t) =>
+      t.is_available &&
+      t.condition !== "NEEDS_MAINTENANCE" &&
+      !t.has_ongoing_game
+  ).length;
+  const totalTables = tables.filter(
+    (t) => t.condition !== "NEEDS_MAINTENANCE"
+  ).length;
   const activeReservations = myReservations.length;
 
   if (isLoading) {
@@ -85,7 +93,7 @@ export default function HomePage() {
               <div className="text-4xl">🎯</div>
               <div className="text-right">
                 <div className="text-3xl font-bold text-white">
-                  {availableTables}/{tables.length}
+                  {availableTables}/{totalTables}
                 </div>
                 <div className="text-sm text-slate-400">Tables disponibles</div>
               </div>
