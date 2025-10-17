@@ -1,0 +1,43 @@
+---
+- name: Déployer l’application Babynov et configurer PostgreSQL
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: Créer le dossier d’application
+      file:
+        path: /home/ubuntu/babynov
+        state: directory
+        mode: '0755'
+
+    - name: Copier backend
+      copy:
+        src: ./backend/
+        dest: /home/ubuntu/babynov/backend/
+        mode: '0755'
+
+    - name: Copier frontend build
+      copy:
+        src: ./frontend/dist
+        dest: /home/ubuntu/babynov/frontend/
+        mode: '0755'
+
+    - name: Installer dépendances backend
+      shell: npm ci
+      args:
+        chdir: /home/ubuntu/babynov/backend
+
+    - name: Redémarrer backend (pm2)
+      shell: pm2 restart babynov-backend || pm2 start /home/ubuntu/babynov/backend/index.js --name babynov-backend
+      ignore_errors: yes
+
+    - name: Créer base Postgres
+      postgresql_db:
+        name: babynovdb
+        state: present
+      delegate_to: 172.20.10.3
+
+    - name: Initialiser schéma ou données
+      shell: psql -d babynovdb -f /tmp/init.sql
+      delegate_to: 172.20.10.3
+      become_user: postgres
