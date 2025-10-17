@@ -112,4 +112,8 @@ ansible-playbook -i inventory.ini deploy.yml -u ubuntu --private-key ~/.ssh/id_r
 
 > Section d'honnêteté, décrivez ce qui n'a pas été fait, ce qui aurait pu être amélioré, les limitations de votre solution actuelle. Montrez que vous avez une vision critique de votre travail, de ce qui a été accompli durant ces deux demi-journées.
 
-Le but n'est pas de faire un produit fini, mais de montrer vos compétences techniques, votre capacité à travailler en équipe, à gérer un projet, et à livrer quelque chose de fonctionnel dans un temps limité.
+L’une des parties qui n’a pas pu être finalisée à temps est la base de données. Une grande réflexion restait à mener côté data, notamment pour normaliser les ID entre les différentes tables avant de pouvoir exporter les données. Nous avons également rencontré des problèmes de connexion liés à l’infrastructure. Aussi, les besoins ont évolué tout au long du développement, rendant cette partie encore plus complexe à stabiliser.
+
+Avec le recul, la base de données était le point central reliant l’ensemble de l’équipe. Il aurait sans doute fallu se concerter dès le lancement du projet afin d’identifier collectivement les besoins, les contraintes et les incertitudes de chacun autour de ce sujet.
+
+Malgré ce petit manque d’organisation et de vision à long terme, l’équipe a su avancer, en veillant à ce que chacun puisse progresser de son côté tout en maintenant une bonne humeur.
