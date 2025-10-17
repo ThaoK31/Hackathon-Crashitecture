@@ -2,6 +2,7 @@
 
 ## Equipe
 
+- Cloud & Infra 2 : Mathis Dubaille  
 - Cloud & Infra 1 : NOM Prénom
 - Cloud & Infra : NOM Prénom
 
