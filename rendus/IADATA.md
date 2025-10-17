@@ -142,24 +142,31 @@ Avant l’analyse, nous avons défini **3 KPI principaux** :
 
 Pour la visualisation des données et répondre aux questions posés nous avons utilisés POWER BI (fichier fournit dans le dossier rendus/data/BI_Baby_crash.pbix) avec notre dataset néttoyé :
 
-- Pour le top 10 des meilleurs butteur nous avons optés pour un graphique à Barre groupé où nous pouvons voir le nombre de but par jouer ainsi que le nombre de matches joués
+**- Pour le top 10 des meilleurs butteur nous avons optés pour un graphique à Barre groupé où nous pouvons voir le nombre de but par jouer ainsi que le nombre de matches joués**
+
       Top 10 : Maria Bianchi, Casey Faure, Ethan Blanc, Youssef Bernard, Mateo Thomas, Mohamed Schmidt, Mateo Silva, Ava Philippe, Taylor Bianchi et Jordan Richard (plus de détail via le screen du bi fournit avec But et matchs)
+      
                Pour réaliser la mesure, nous avons utilisé la colonne player_canonial_name car c'était la plus pertinente car la data était propre sur le dataset fournit (la colonne game_id n'était pas unique par joueur ainsi que player_name)
-- Pour le top 5 des meilleurs défenseurs en se basant sur le nombre de tir arrêtés nous avons fait de nouveau un graphique à Barre groupé :
+               
+**- Pour le top 5 des meilleurs défenseurs en se basant sur le nombre de tir arrêtés nous avons fait de nouveau un graphique à Barre groupé :**
+
      Top 5 : Casey Faure, Maria Bianchi, Ethan Blanc, Youssef Bernard et Mohamed Schmidt
               Mesure réaliser avec les colonnes Player_saves et player_canonical_name (pour garder la cohésion avec les autres mesures et pour le motif cité plus haut)
-- et pour répondre à la question si une couleur d'équipe qui influx sur la victoire la réponse est non car l'écart et trop insignifiant pour être considéré comme plausible (0,72% d'écart entre les deux couleurs)
+              
+**- Pour répondre à la question si une couleur d'équipe qui influx sur la victoire la réponse est non car l'écart et trop insignifiant pour être considéré comme plausible (0,72% d'écart entre les deux couleurs)**
 
 Screen de référence : /rendus/data/screen bi question data.png
 
 Nos difficultés pour ces mesures ont été plutôt de bien vérifier la qualité des données en amont afin d'apporter les réponses les plus précises possibles.
 
-Nous avons aussi ajouté quelques infos supplémentaires comme :
+**Nous avons aussi ajouté quelques infos supplémentaires comme :**
 
-- Un histogramme du nombre de matches par mois par saison avec un compteur du nombre de parties joués totale et la progression de celle-ci vs N-1 (+300% sur la saison 2024/2025 vs 2023/2024) avec plus de 20000 partie joué cette année-là vs approximativement 4900 partie sur n-1
+**- Un histogramme du nombre de matches par mois par saison avec un compteur du nombre de parties joués totale et la progression de celle-ci vs N-1 (+300% sur la saison 2024/2025 vs 2023/2024) avec plus de 20000 partie joué cette année-là vs approximativement 4900 partie sur n-1**
+
         source /rendus/data/Screen_Bi_Histo_Match_season_2023_2024.png et /rendus/data/Screen_Bi_Histo_Match_season_2024_2025.png
 
-Nous avons aussi ajouté un top 10 des joueurs ayant marqué le plus grand nombre de buts en moyenne par match ainsi que le top 10 des meilleurs joueurs ayant marqué le plus de but en étant en position de défense.
+**Nous avons aussi ajouté un top 10 des joueurs ayant marqué le plus grand nombre de buts en moyenne par match ainsi que le top 10 des meilleurs joueurs ayant marqué le plus de but en étant en position de défense.**
+
         source /rendus/data/screen_BI_Top_10_moyenne_but_all_season.png et /rendus/data/screen_BI_Top_10_Butteur_jouant_en_defense.png
 
 
