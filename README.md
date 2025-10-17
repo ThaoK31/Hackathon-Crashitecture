@@ -7,23 +7,7 @@
 
 > Ce repository contient les ressources ainsi que le code source développé lors du hackathon Ynov Toulouse 2025.
 
-Cette template de README est un guide pour vous aider à structurer votre rendu de projet. N'hésitez pas à l'adapter ou surtout à le compléter avec des sections supplémentaires si nécessaire.
 
-## Contexte
-
-Et si on réinventait l’expérience babyfoot à Ynov ? L’objectif de ce hackathon est de moderniser et digitaliser l’usage des babyfoots présents dans le Souk pour créer un service _next-gen_, pensé pour près de 1000 étudiants !
-
-Que ce soit via des gadgets connectés, un système de réservation intelligent, des statistiques en temps réel ou des fonctionnalités robustes pour une utilisation massive, nous cherchons des solutions innovantes qui allient créativité et technologie.
-
-Toutes les filières sont invitées à contribuer : Dev, Data, Infra, IoT, Systèmes embarqués… chaque idée compte pour rendre le babyfoot plus fun, plus pratique et plus connecté.
-
-Votre mission : transformer le babyfoot classique en expérience high-tech pour Ynov !
-
-Bienvenue dans le Hackathon Ynov Toulouse 2025 !
-
-> Retrouvez vos guidelines techniques dans le fichier [SPECIFICATIONS.md](./SPECIFICATIONS.md).
-
-> P.S C'est un projet de groupe, pas autant de sous-projets que de filières dans votre équipe. Travaillez ensemble pour un seul et même projet au nom de votre équipe toute entière. Les guidelines sont là pour vous aider, pas pour vous diviser. Profitez de ce moment pour apprendre à travailler ensemble, partager vos compétences, et créer quelque chose d'unique.
 
 ## Equipe
 
@@ -36,7 +20,6 @@ Bienvenue dans le Hackathon Ynov Toulouse 2025 !
 - IA & Data 2 : MESON Rémi (Porte parole)
 - IA & Data 3 : SELLIER Louis
 
-> Préciser qui est le porte parole de l'équipe, c'est lui qui répondra aux questions si nécessaire.
 
 ## Table des matières
 
@@ -51,11 +34,12 @@ Bienvenue dans le Hackathon Ynov Toulouse 2025 !
 
 ## Contenu du projet
 
-> Décrivez brièvement le projet, son objectif. Utilisez une vue business pour décrire ce que votre produit/service apporte à vos utilisateurs.
+Babynov est un espace utilisateur complet qui offre plusieurs fonctionnalités clés pour améliorer l’expérience des joueurs.
+Il permet tout d’abord la réservation simple et sécurisée des babyfoots, facilitant la gestion des créneaux et la coordination entre les joueurs. 
+Ensuite, chaque utilisateur bénéficie d’un profil personnalisé où il peut consulter ses statistiques détaillées des parties jouées, lui donnant un aperçu clair de ses performances et de sa progression dans le jeu. Enfin, Babynov offre un accès en temps réel aux scores des parties en cours, permettant à tous les joueurs et spectateurs de suivre les défis et les résultats en direct, rendant l’expérience plus dynamique et engageante. 
+Ces fonctionnalités combinées font de Babynov une plateforme interactive et conviviale dédiée aux amateurs de babyfoot.
 
 ## Technologies utilisées
-
-> Ici, listez les principales technologies, en expliquant pourquoi vous les avez choisies. Tout choix technique, langages, frameworks doit être justifié. (Parce que vous maîtrisez déjà la techno, parce que c'est la plus adaptée au besoin, parce que c'est la plus innovante, etc.)
 
 #### IA & Data:
 - Python : Langage que l'on maitrise le mieux mais aussi le plus utilisé pour la Data Science et l'exploration de données, notamment grâce à ses bibliothèques comme Pandas.
@@ -65,6 +49,28 @@ Bienvenue dans le Hackathon Ynov Toulouse 2025 !
 - Jupyter Notebook : Un environnement parfait pour l’analyse exploratoire. Son interface par cellules nous a permis d’itérer rapidement sur nos traitements tout en documentant clairement notre démarche, rendant notre travail facile à suivre.
 
 - Power BI : Outil de Data Visualisation. Nous l'avons choisi pour la restitution finale de nos analyses. Sa capacité à créer rapidement des dashboards interactifs et percutants en fait la solution idéale.
+#### Infrastructure :
+- **Docker** : Nous avons choisi Docker car il permet de containeriser chaque composant (backend, frontend, bases de données) dans des environnements isolés. Cela simplifie le déploiement et garantit la cohérence sur différents serveurs.
+
+- **Docker Compose** : Cet outil est indispensable pour gérer plusieurs containers en même temps. Docker Compose nous permet de définir et de lancer toute la stack Babynov en un seul fichier, avec une simple commande.
+
+- **Ansible** : Nous utilisons Ansible pour automatiser complètement le déploiement et la configuration. Son approche déclarative via les playbooks facilite la répétabilité et la maintenance des déploiements.
+
+- **GitHub Actions** : Nous avons intégré GitHub Actions pour l’automatisation CI/CD. À chaque commit, un workflow déclenche Ansible afin de déployer automatiquement la dernière version, assurant ainsi un déploiement rapide et fiable.
+
+- **Redis** : Choisi pour sa rapidité et sa capacité à gérer les données en temps réel. Redis est idéal pour actualiser instantanément les informations comme les scores et états des babyfoots, garantissant une expérience fluide pour les joueurs.
+
+- **PostgreSQL** : Base de données relationnelle robuste et puissante. Nous avons opté pour PostgreSQL pour stocker toutes les données persistantes, notamment les profils des joueurs, les réservations, et les historiques de parties avec une fiabilité et une cohérence garanties.
+
+#### Développement:
+- **React JS** : Nous avons choisi React pour sa modularité et sa facilité à construire des interfaces utilisateur dynamiques et performantes. Sa large communauté et son écosystème riche permettent un développement rapide et maintenable.
+
+- **Vite** : Vite a été retenu comme outil de build frontend pour sa rapidité exceptionnelle grâce à son système de compilation à chaud optimisé. Cela améliore considérablement le temps de développement et le feedback instantané lors du coding.
+
+- **Node.js** : Utilisé côté serveur, Node.js offre un environnement performant, asynchrone et léger, idéal pour gérer les requêtes HTTP et les websockets nécessaires au backend Babynov.
+
+- **Express** : Nous utilisons Express comme framework minimaliste pour Node.js. Il facilite la création d’API REST robustes et modulaires, tout en permettant une structure claire et extensible du backend.
+
 
 ## Architecture
 
@@ -72,13 +78,35 @@ Bienvenue dans le Hackathon Ynov Toulouse 2025 !
 
 ## Guide de déploiement
 
-> Expliquez comment déployer votre application **EN MOINS DE LIGNES DE COMMANDE POSSIBLES**. Docker, Ansible, Terraform, Scripts Shell... Le but est de pouvoir déployer votre application en une seule commande ou presque.
+Ce guide explique comment déployer automatiquement l'application Babynov en utilisant Ansible et Docker, en une seule commande presque, sur une machine Linux Debian/Ubuntu.
 
-Exemple de lancement en **une seule commande**:
+### Prérequis
 
-[Références Proxmox HelperScripts](https://github.com/community-scripts/ProxmoxVE/tree/main/install)
+- Machine Linux (Debian/Ubuntu) avec accès SSH.
+- Docker & Docker Compose installés (sinon Ansible s’en charge).
+- Clé SSH configurée pour permettre la connexion sans mot de passe.
+- Le dépôt contient le playbook Ansible `deploy.yml` et tous les fichiers nécessaires (backend, frontend, docker-compose.yml, scripts SQL).
 
-> /!\ IMPORTANT /!\ : Votre projet sera déployé sur une machine **LINUX** (Debian/Ubuntu), avec 4Go de RAM et 2 CPU (x86_64). Assurez-vous que votre application peut fonctionner dans ces conditions. Il n'y aura pas de "Ca marche sur mon Mac." ou encore "Si on alligne les astres sur Windows XP ça passe.".
+### Commande unique pour déployer 
+ansible-playbook -i inventory.ini deploy.yml -u ubuntu --private-key ~/.ssh/id_rsa
+
+### Ce que fait cette commande :
+
+- Connexion à la machine distante via SSH.
+- Copie de tous les fichiers (code, configuration, docker-compose).
+- Installation automatique de Docker et Docker Compose si nécessaires.
+- Démarrage et mise à jour des containers Docker (backend, frontend, Postgres, Redis).
+- Initialisation de la base de données PostgreSQL.
+- Redémarrage des services backend pour appliquer les nouvelles versions.
+
+---
+
+### Références
+
+- [Ansible Documentation](https://docs.ansible.com)
+- [Docker Documentation](https://docs.docker.com)
+- [GitHub Actions Documentation](https://docs.github.com/en/actions)
+
 
 ## Etat des lieux
 
