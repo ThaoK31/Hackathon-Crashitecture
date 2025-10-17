@@ -140,34 +140,43 @@ Avant l’analyse, nous avons défini **3 KPI principaux** :
 
 # 6. Visualisation des données
 
-Pour la visualisation des données et répondre aux questions posés nous avons utilisés POWER BI (fichier fournit dans le dossier rendus/data/BI_Baby_crash.pbix) avec notre dataset néttoyé :
+Pour la **visualisation des données** et répondre aux questions posées, nous avons utilisé **Power BI** (fichier disponible : `rendus/data/BI_Baby_crash.pbix`) avec notre dataset nettoyé.
 
-**- Pour le top 10 des meilleurs butteur nous avons optés pour un graphique à Barre groupé où nous pouvons voir le nombre de but par jouer ainsi que le nombre de matches joués**
+#### Top 10 des meilleurs buteurs
 
-      Top 10 : Maria Bianchi, Casey Faure, Ethan Blanc, Youssef Bernard, Mateo Thomas, Mohamed Schmidt, Mateo Silva, Ava Philippe, Taylor Bianchi et Jordan Richard (plus de détail via le screen du bi fournit avec But et matchs)
-      
-               Pour réaliser la mesure, nous avons utilisé la colonne player_canonial_name car c'était la plus pertinente car la data était propre sur le dataset fournit (la colonne game_id n'était pas unique par joueur ainsi que player_name)
-               
-**- Pour le top 5 des meilleurs défenseurs en se basant sur le nombre de tir arrêtés nous avons fait de nouveau un graphique à Barre groupé :**
+Nous avons opté pour un **graphique à barres groupées** afin de visualiser le nombre de buts par joueur ainsi que le nombre de matchs joués.
 
-     Top 5 : Casey Faure, Maria Bianchi, Ethan Blanc, Youssef Bernard et Mohamed Schmidt
-              Mesure réaliser avec les colonnes Player_saves et player_canonical_name (pour garder la cohésion avec les autres mesures et pour le motif cité plus haut)
-              
-**- Pour répondre à la question si une couleur d'équipe qui influx sur la victoire la réponse est non car l'écart et trop insignifiant pour être considéré comme plausible (0,72% d'écart entre les deux couleurs)**
+**Top 10 :** Maria Bianchi, Casey Faure, Ethan Blanc, Youssef Bernard, Mateo Thomas, Mohamed Schmidt, Mateo Silva, Ava Philippe, Taylor Bianchi et Jordan Richard.  
+(Plus de détails via le screen BI fourni : *But et matchs*.)
 
-Screen de référence : /rendus/data/screen bi question data.png
+Pour réaliser la mesure, nous avons utilisé la colonne `player_canonical_name`, la plus pertinente car la donnée y était propre sur le dataset fourni. La colonne `game_id` n’était pas unique par joueur, tout comme `player_name`.
 
-Nos difficultés pour ces mesures ont été plutôt de bien vérifier la qualité des données en amont afin d'apporter les réponses les plus précises possibles.
+#### Top 5 des meilleurs défenseurs
 
-**Nous avons aussi ajouté quelques infos supplémentaires comme :**
+Pour identifier les meilleurs défenseurs en se basant sur le nombre de tirs arrêtés, nous avons de nouveau utilisé un **graphique à barres groupées**.
 
-**- Un histogramme du nombre de matches par mois par saison avec un compteur du nombre de parties joués totale et la progression de celle-ci vs N-1 (+300% sur la saison 2024/2025 vs 2023/2024) avec plus de 20000 partie joué cette année-là vs approximativement 4900 partie sur n-1**
+**Top 5 :** Casey Faure, Maria Bianchi, Ethan Blanc, Youssef Bernard et Mohamed Schmidt.  
+Mesure réalisée avec les colonnes `player_saves` et `player_canonical_name` (pour garder la cohérence avec les autres mesures et pour la raison citée ci-dessus).
 
-        source /rendus/data/Screen_Bi_Histo_Match_season_2023_2024.png et /rendus/data/Screen_Bi_Histo_Match_season_2024_2025.png
+#### Influence de la couleur d’équipe sur la victoire
 
-**Nous avons aussi ajouté un top 10 des joueurs ayant marqué le plus grand nombre de buts en moyenne par match ainsi que le top 10 des meilleurs joueurs ayant marqué le plus de but en étant en position de défense.**
+Pour répondre à la question « une couleur d’équipe influence-t-elle la victoire ? » la réponse est **non** : l’écart est trop insignifiant pour être considéré comme plausible (≈ **0,72 %** d’écart entre les deux couleurs).
 
-        source /rendus/data/screen_BI_Top_10_moyenne_but_all_season.png et /rendus/data/screen_BI_Top_10_Butteur_jouant_en_defense.png
+**Screen de référence :** `rendus/data/screen_bi_question_data.png`
+
+Nos principales difficultés pour ces mesures ont été de vérifier la qualité des données en amont afin d’apporter des réponses fiables et précises.
+
+---
+
+### Informations supplémentaires
+
+- **Histogramme du nombre de matchs par mois et par saison**, avec un compteur du nombre total de parties jouées et la progression vs N-1.  
+  Résultat : **+300 %** sur la saison 2024/2025 vs 2023/2024 — **> 20 000 parties** en 2024/2025 vs ~**4 900** en N-1.  
+  **Sources :** `rendus/data/Screen_Bi_Histo_Match_season_2023_2024.png`, `rendus/data/Screen_Bi_Histo_Match_season_2024_2025.png`
+
+- **Top 10 des joueurs ayant le plus grand nombre de buts en moyenne par match**, et **top 10 des meilleurs buteurs jouant en position de défense**.  
+  **Sources :** `rendus/data/screen_BI_Top_10_moyenne_but_all_season.png`, `rendus/data/screen_BI_Top_10_Butteur_jouant_en_defense.png`
+
 
 
   
