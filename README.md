@@ -23,21 +23,37 @@
 
 ## Table des matières
 
-- [Contexte](#contexte)
 - [Equipe](#equipe)
 - [Table des matières](#table-des-matières)
 - [Contenu du projet](#contenu-du-projet)
+- [Fonctionnalités clés](#fonctionnalités-clés)
 - [Technologies utilisées](#technologies-utilisées)
+    - [IA \& Data:](#ia--data)
+    - [Infrastructure :](#infrastructure-)
+    - [Développement:](#développement)
 - [Architecture](#architecture)
+- [Documentation Détaillée](#documentation-détaillée)
 - [Guide de déploiement](#guide-de-déploiement)
+  - [Prérequis](#prérequis)
+  - [Commande unique pour déployer](#commande-unique-pour-déployer)
+  - [Ce que fait cette commande :](#ce-que-fait-cette-commande-)
+  - [Références](#références)
 - [Etat des lieux](#etat-des-lieux)
 
 ## Contenu du projet
 
-Babynov est un espace utilisateur complet qui offre plusieurs fonctionnalités clés pour améliorer l’expérience des joueurs.
-Il permet tout d’abord la réservation simple et sécurisée des babyfoots, facilitant la gestion des créneaux et la coordination entre les joueurs. 
-Ensuite, chaque utilisateur bénéficie d’un profil personnalisé où il peut consulter ses statistiques détaillées des parties jouées, lui donnant un aperçu clair de ses performances et de sa progression dans le jeu. Enfin, Babynov offre un accès en temps réel aux scores des parties en cours, permettant à tous les joueurs et spectateurs de suivre les défis et les résultats en direct, rendant l’expérience plus dynamique et engageante. 
+Babynov est un espace utilisateur complet qui offre plusieurs fonctionnalités clés pour améliorer l'expérience des joueurs.
+Il permet tout d'abord la réservation simple et sécurisée des babyfoots, facilitant la gestion des créneaux et la coordination entre les joueurs. 
+Ensuite, chaque utilisateur bénéficie d'un profil personnalisé où il peut consulter ses statistiques détaillées des parties jouées, lui donnant un aperçu clair de ses performances et de sa progression dans le jeu. Enfin, Babynov offre un accès en temps réel aux scores des parties en cours, permettant à tous les joueurs et spectateurs de suivre les défis et les résultats en direct, rendant l'expérience plus dynamique et engageante. 
 Ces fonctionnalités combinées font de Babynov une plateforme interactive et conviviale dédiée aux amateurs de babyfoot.
+
+## Fonctionnalités clés
+
+- **Réservation intelligente** : Sélection de créneaux avec bouton "Maintenant" pour réservation immédiate, durées flexibles (15min à 3h)
+- **Gestion des parties** : Création de parties avec 2-4 joueurs, attribution automatique des rôles, scores en temps réel via WebSockets
+- **Dashboard administrateur** : Gestion des utilisateurs, tables, réservations et statistiques
+- **Authentification sécurisée** : JWT avec gestion des rôles (utilisateur/admin)
+- **Interface moderne** : React + TypeScript avec Tailwind CSS et validation Zod
 
 ## Technologies utilisées
 
@@ -63,18 +79,92 @@ Ces fonctionnalités combinées font de Babynov une plateforme interactive et co
 - **PostgreSQL** : Base de données relationnelle robuste et puissante. Nous avons opté pour PostgreSQL pour stocker toutes les données persistantes, notamment les profils des joueurs, les réservations, et les historiques de parties avec une fiabilité et une cohérence garanties.
 
 #### Développement:
-- **React JS** : Nous avons choisi React pour sa modularité et sa facilité à construire des interfaces utilisateur dynamiques et performantes. Sa large communauté et son écosystème riche permettent un développement rapide et maintenable.
+- **React + TypeScript** : Nous avons choisi React pour sa modularité et sa facilité à construire des interfaces utilisateur dynamiques et performantes. TypeScript apporte une sécurité des types qui réduit les erreurs à l'exécution et facilite la maintenance du code.
 
 - **Vite** : Vite a été retenu comme outil de build frontend pour sa rapidité exceptionnelle grâce à son système de compilation à chaud optimisé. Cela améliore considérablement le temps de développement et le feedback instantané lors du coding.
 
-- **Node.js** : Utilisé côté serveur, Node.js offre un environnement performant, asynchrone et léger, idéal pour gérer les requêtes HTTP et les websockets nécessaires au backend Babynov.
+- **Tailwind CSS** : Framework CSS utilitaire qui permet de créer rapidement des interfaces modernes et cohérentes sans écrire de CSS personnalisé.
 
-- **Express** : Nous utilisons Express comme framework minimaliste pour Node.js. Il facilite la création d’API REST robustes et modulaires, tout en permettant une structure claire et extensible du backend.
+- **Zod** : Bibliothèque de validation de schémas qui garantit la cohérence des données entre le frontend et le backend, avec des messages d'erreur clairs pour l'utilisateur.
+
+- **Node.js + Express** : Utilisé côté serveur, Node.js offre un environnement performant, asynchrone et léger. Express facilite la création d'API REST robustes et modulaires.
+
+- **Socket.io** : Bibliothèque pour les WebSockets qui permet la mise à jour en temps réel des scores et des parties en cours, offrant une expérience utilisateur fluide et réactive.
+
+- **Sequelize** : ORM pour PostgreSQL qui simplifie les requêtes SQL et facilite la gestion de la base de données.
+
+- **JWT** : Authentification sécurisée avec tokens JWT pour protéger les routes sensibles et gérer les sessions utilisateurs.
 
 
 ## Architecture
 
-> Faite un schéma simple de l'architecture technique de votre solution. Chaque service/composant est un bloc, et les interactions entre les blocs sont des flèches. Vous pouvez utiliser des outils comme [draw.io](https://app.diagrams.net/), ou encore [Excalidraw](https://excalidraw.com/) pour créer vos schémas. C'est une vue d'ensemble, pas un détail de chaque composant. Chacun d'entre vous doit être capable d'expliquer cette architecture.
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│                            UTILISATEURS                              │
+│                    (Étudiants, Administrateurs)                      │
+└────────────────────────────┬────────────────────────────────────────┘
+                             │
+                             ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                         FRONTEND (React)                             │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐            │
+│  │ Pages    │  │ Composants│  │  Modals  │  │ Services │            │
+│  │ (Home,   │  │ (Button,  │  │(Reservation,│ │ (API,   │            │
+│  │ Tables,  │  │ Input,    │  │ Game,    │  │ Auth)    │            │
+│  │ Games)   │  │ Card)     │  │ Table)   │  │          │            │
+│  └──────────┘  └──────────┘  └──────────┘  └──────────┘            │
+└────────────────────────────┬────────────────────────────────────────┘
+                             │
+                             │ HTTP/WebSocket
+                             ▼
+┌─────────────────────────────────────────────────────────────────────┐
+│                      BACKEND (Node.js + Express)                     │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐              │
+│  │  Routes      │  │ Controllers  │  │ Middleware   │              │
+│  │  (REST API)  │  │  (Logique)   │  │ (Auth,       │              │
+│  │              │  │              │  │  Validation) │              │
+│  └──────────────┘  └──────────────┘  └──────────────┘              │
+│                                                                      │
+│  ┌──────────────────────────────────────────────────────────────┐  │
+│  │              WebSocket (Socket.io)                            │  │
+│  │         Mise à jour temps réel des scores                     │  │
+│  └──────────────────────────────────────────────────────────────┘  │
+└────────────┬──────────────────────────────┬─────────────────────────┘
+             │                              │
+             │ Sequelize ORM                │
+             ▼                              ▼
+┌──────────────────────────┐    ┌──────────────────────────┐
+│   PostgreSQL Database    │    │      Redis Cache         │
+│  ┌────────────────────┐  │    │  ┌────────────────────┐  │
+│  │ Users              │  │    │  │ Tables Cache       │  │
+│  │ Tables             │  │    │  │ Session Data       │  │
+│  │ Reservations       │  │    │  │ WebSocket State    │  │
+│  │ Games              │  │    │  └────────────────────┘  │
+│  │ GamePlayers        │  │    └──────────────────────────┘
+│  └────────────────────┘  │
+└──────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────┐
+│                    INFRASTRUCTURE (Docker)                           │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐              │
+│  │  Frontend    │  │  Backend     │  │  PostgreSQL  │              │
+│  │  Container   │  │  Container   │  │  Container   │              │
+│  └──────────────┘  └──────────────┘  └──────────────┘              │
+│  ┌──────────────┐                                                    │
+│  │  Redis       │                                                    │
+│  │  Container   │                                                    │
+│  └──────────────┘                                                    │
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+## Documentation Détaillée
+
+Pour plus de détails sur le travail de chaque équipe :
+
+- **[Documentation FullStack](./rendus/FULLSTACK.md)** - Détails techniques et fonctionnalités implémentées par l'équipe FullStack
+- **[Documentation Infrastructure](./rendus/INFRA.md)** - Architecture, déploiement et sécurité
+- **[Documentation IA & Data](./rendus/IADATA.md)** - Analyse des données et statistiques
+- **[Documentation IoT/Systèmes Embarqués](./rendus/IOT_SYSEMB.md)** - Capteurs et automatisation
 
 ## Guide de déploiement
 
