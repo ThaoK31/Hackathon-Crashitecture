@@ -16,9 +16,9 @@
 - Dev' FullStack 3 : REMERY Lucas
 - Cloud & Infrastructure 1 : LOUCIF Inasse
 - Cloud & Infrastructure 2 : DUBAILLE Mathis
+- Cloud & Infrastructure 3 :  SELLIER Louis
 - IA & Data 1 : CASTELLANO Julien
 - IA & Data 2 : MESON Rémi (Porte parole)
-- IA & Data 3 : SELLIER Louis
 
 
 ## Table des matières
