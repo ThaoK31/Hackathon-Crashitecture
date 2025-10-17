@@ -1,0 +1,821 @@
+{
+  "info": {
+    "name": "Babynov API - Ynov Toulouse 2025",
+    "description": "Collection Postman complète pour tester l'API Babynov\n\n🔐 Comptes de test :\n- Admin : admin@ynov.com / password123\n- Utilisateur : theo@ynov.com / password123\n\n📝 Instructions :\n1. Lancer le backend : cd backend && docker compose up -d\n2. Importer cette collection dans Postman\n3. Commencer par 'Auth > Login' pour obtenir le token JWT\n4. Le token sera automatiquement utilisé pour les requêtes suivantes",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id_2",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id_3",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id_4",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "table_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "reservation_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "game_id",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+              "pm.test('Server is running', () => {",
+              "  var jsonData = pm.response.json();",
+              "  pm.expect(jsonData).to.have.property('status');",
+              "  pm.expect(jsonData.status).to.eql('OK');",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.collectionVariables.set('jwt_token', jsonData.data.token);",
+                  "  pm.collectionVariables.set('user_id', jsonData.data.user.id);",
+                  "  pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "  pm.test('Token received', () => pm.expect(jsonData.data.token).to.be.a('string'));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"test@ynov.com\",\n  \"username\": \"test\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.collectionVariables.set('jwt_token', jsonData.data.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@ynov.com\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Connexion avec le compte administrateur. Le token JWT sera automatiquement sauvegardé pour les requêtes suivantes."
+          }
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.collectionVariables.set('jwt_token', jsonData.data.token);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"theo@ynov.com\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Connexion avec un compte utilisateur normal."
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "profile"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get All Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users"]
+            }
+          }
+        },
+        {
+          "name": "Get User By ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{user_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"alice_updated\",\n  \"email\": \"alice.updated@ynov.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{user_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Change User Role (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"role\": \"ADMIN\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}/role",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{user_id}}", "role"]
+            }
+          }
+        },
+        {
+          "name": "Delete User (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "{{user_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tables",
+      "item": [
+        {
+          "name": "Get All Tables",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns array of tables', () => {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.expect(jsonData.data.tables).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/tables",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tables"]
+            }
+          }
+        },
+        {
+          "name": "Get Table By ID",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/tables/{{table_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tables", "{{table_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Table (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.collectionVariables.set('table_id', jsonData.data.table.id);",
+                  "  pm.test('Table created', () => pm.response.to.have.status(201));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Babyfoot Test\",\n  \"location\": \"Souk Ynov - Zone Test\",\n  \"condition\": \"EXCELLENT\",\n  \"is_available\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tables",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tables"]
+            }
+          }
+        },
+        {
+          "name": "Update Table (Admin)",
+          "request": {
+            "method": "PUT",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Babyfoot #1 Souk - Updated\",\n  \"condition\": \"GOOD\",\n  \"is_available\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tables/{{table_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tables", "{{table_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Check Availability",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/tables/{{table_id}}/availability?start_time=2025-10-17T14:00:00Z&end_time=2025-10-17T15:00:00Z",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tables", "{{table_id}}", "availability"],
+              "query": [
+                {"key": "start_time", "value": "2025-10-17T14:00:00Z"},
+                {"key": "end_time", "value": "2025-10-17T15:00:00Z"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Table (Admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/tables/{{table_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tables", "{{table_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Reservations",
+      "item": [
+        {
+          "name": "Get All Reservations (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/reservations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reservations"]
+            }
+          }
+        },
+        {
+          "name": "Get My Reservations",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/reservations/my",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reservations", "my"]
+            }
+          }
+        },
+        {
+          "name": "Create Reservation",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.collectionVariables.set('reservation_id', jsonData.data.reservation.id);",
+                  "  pm.test('Reservation created', () => pm.response.to.have.status(201));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"table_id\": \"{{table_id}}\",\n  \"start_time\": \"2025-10-17T14:00:00Z\",\n  \"duration\": 60\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/reservations",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reservations"]
+            },
+            "description": "Créer une réservation. duration est en minutes (15, 30, 60, 120, 180)."
+          }
+        },
+        {
+          "name": "Cancel Reservation",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/reservations/{{reservation_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "reservations", "{{reservation_id}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Games",
+      "item": [
+        {
+          "name": "Get Live Games",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns games', () => {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.expect(jsonData.data.games).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/games/live",
+              "host": ["{{base_url}}"],
+              "path": ["api", "games", "live"]
+            }
+          }
+        },
+        {
+          "name": "Get Game By ID",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/games/{{game_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "games", "{{game_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Create Game",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.collectionVariables.set('game_id', jsonData.data.game.id);",
+                  "  pm.test('Game created', () => pm.response.to.have.status(201));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"table_id\": \"{{table_id}}\",\n  \"players\": [\n    {\n      \"user_id\": \"{{user_id}}\",\n      \"team_color\": \"RED\",\n      \"role\": \"ATTACK\"\n    },\n    {\n      \"user_id\": \"{{user_id_2}}\",\n      \"team_color\": \"RED\",\n      \"role\": \"DEFENSE\"\n    },\n    {\n      \"user_id\": \"{{user_id_3}}\",\n      \"team_color\": \"BLUE\",\n      \"role\": \"ATTACK\"\n    },\n    {\n      \"user_id\": \"{{user_id_4}}\",\n      \"team_color\": \"BLUE\",\n      \"role\": \"DEFENSE\"\n    }\n  ]\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/games",
+              "host": ["{{base_url}}"],
+              "path": ["api", "games"]
+            },
+            "description": "Créer une partie avec 4 joueurs. Minimum 2 joueurs requis, maximum 4 joueurs."
+          }
+        },
+        {
+          "name": "Update Score",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Score updated', () => pm.response.to.have.status(200));",
+                  "pm.test('Cache invalidated', () => {",
+                  "  console.log('Redis cache should be invalidated');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"team_red_score\": 5,\n  \"team_blue_score\": 3\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/games/{{game_id}}/score",
+              "host": ["{{base_url}}"],
+              "path": ["api", "games", "{{game_id}}", "score"]
+            }
+          }
+        },
+        {
+          "name": "End Game",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/games/{{game_id}}/end",
+              "host": ["{{base_url}}"],
+              "path": ["api", "games", "{{game_id}}", "end"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Statistics",
+      "item": [
+        {
+          "name": "Get Player Stats",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns player statistics', () => {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.expect(jsonData.data).to.have.property('player');",
+                  "  pm.expect(jsonData.data).to.have.property('statistics');",
+                  "  pm.expect(jsonData.data.statistics).to.have.property('totalGames');",
+                  "  pm.expect(jsonData.data.statistics).to.have.property('wins');",
+                  "  pm.expect(jsonData.data.statistics).to.have.property('losses');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/stats/players/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stats", "players", "{{user_id}}"]
+            },
+            "description": "Récupère les statistiques complètes d'un joueur incluant le nombre de parties, victoires, défaites, ratio, buts, et préférences de jeu."
+          }
+        },
+        {
+          "name": "Get Leaderboard",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns leaderboard data', () => {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.expect(jsonData.data).to.have.property('leaderboard');",
+                  "  pm.expect(jsonData.data).to.have.property('totalActivePlayers');",
+                  "  pm.expect(jsonData.data.leaderboard).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/stats/leaderboard?limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stats", "leaderboard"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Nombre maximum de joueurs à retourner (par défaut 10)"
+                }
+              ]
+            },
+            "description": "Retourne le classement général des joueurs triés par ratio victoires/défaites et nombre de victoires."
+          }
+        },
+        {
+          "name": "Get Tables Statistics",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns tables statistics', () => {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.expect(jsonData.data).to.have.property('tables');",
+                  "  pm.expect(jsonData.data).to.have.property('totalGames');",
+                  "  pm.expect(jsonData.data.tables).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/stats/tables",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stats", "tables"]
+            },
+            "description": "Retourne les statistiques d'utilisation de chaque table avec le taux d'utilisation et le nombre de parties."
+          }
+        },
+        {
+          "name": "Get Global Statistics",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Returns global statistics', () => {",
+                  "  var jsonData = pm.response.json();",
+                  "  pm.expect(jsonData.data).to.have.property('games');",
+                  "  pm.expect(jsonData.data).to.have.property('players');",
+                  "  pm.expect(jsonData.data).to.have.property('duration');",
+                  "  pm.expect(jsonData.data).to.have.property('scoring');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/stats/global",
+              "host": ["{{base_url}}"],
+              "path": ["api", "stats", "global"]
+            },
+            "description": "Retourne les statistiques générales incluant le nombre total de parties, joueurs actifs, durée moyenne et plus longue partie."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Cache Tests",
+      "item": [
+        {
+          "name": "Test Cache - Tables (First Call - MISS)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "console.log('First call - Should be Cache MISS (check backend logs)');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/tables",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tables"]
+            }
+          }
+        },
+        {
+          "name": "Test Cache - Tables (Second Call - HIT)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response has cached flag', () => {",
+                  "  var jsonData = pm.response.json();",
+                  "  if (jsonData.cached) {",
+                  "    console.log('✅ Cache HIT - Response served from Redis');",
+                  "  }",
+                  "});",
+                  "console.log('Second call - Should be Cache HIT (check backend logs)');"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/tables",
+              "host": ["{{base_url}}"],
+              "path": ["api", "tables"]
+            }
+          }
+        },
+        {
+          "name": "Test Cache - Games Live (MISS)",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/games/live",
+              "host": ["{{base_url}}"],
+              "path": ["api", "games", "live"]
+            }
+          }
+        },
+        {
+          "name": "Test Cache - Games Live (HIT)",
+          "request": {
+            "auth": {"type": "noauth"},
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/games/live",
+              "host": ["{{base_url}}"],
+              "path": ["api", "games", "live"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+

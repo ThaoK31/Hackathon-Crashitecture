@@ -27,6 +27,10 @@
 - [Table des matières](#table-des-matières)
 - [Contenu du projet](#contenu-du-projet)
 - [Fonctionnalités clés](#fonctionnalités-clés)
+- [🚀 Démarrage rapide](#-démarrage-rapide)
+  - [Prérequis](#prérequis)
+  - [Lancement de l'application](#lancement-de-lapplication)
+  - [Comptes de test](#comptes-de-test)
 - [Technologies utilisées](#technologies-utilisées)
     - [IA \& Data:](#ia--data)
     - [Infrastructure :](#infrastructure-)
@@ -34,7 +38,7 @@
 - [Architecture](#architecture)
 - [Documentation Détaillée](#documentation-détaillée)
 - [Guide de déploiement](#guide-de-déploiement)
-  - [Prérequis](#prérequis)
+  - [Prérequis](#prérequis-1)
   - [Commande unique pour déployer](#commande-unique-pour-déployer)
   - [Ce que fait cette commande :](#ce-que-fait-cette-commande-)
   - [Références](#références)
@@ -54,6 +58,34 @@ Ces fonctionnalités combinées font de Babynov une plateforme interactive et co
 - **Dashboard administrateur** : Gestion des utilisateurs, tables, réservations et statistiques
 - **Authentification sécurisée** : JWT avec gestion des rôles (utilisateur/admin)
 - **Interface moderne** : React + TypeScript avec Tailwind CSS et validation Zod
+
+## 🚀 Démarrage rapide
+
+### Prérequis
+- Docker et Docker Compose installés
+
+### Lancement de l'application
+
+1. **Backend** (depuis le dossier `backend/`) :
+   ```bash
+   cd backend
+   docker compose up -d
+   ```
+
+2. **Frontend** (depuis le dossier `frontend/`) :
+   ```bash
+   cd frontend
+   docker compose up -d
+   ```
+
+3. **Accès à l'application** :
+   - Frontend : http://localhost:5173
+   - Backend API : http://localhost:3000
+   - Documentation API : http://localhost:3000/api-docs
+
+### Comptes de test
+- **Admin** : `admin@ynov.com` / `password123`
+- **Utilisateur** : `theo@ynov.com` / `password123`
 
 ## Technologies utilisées
 
