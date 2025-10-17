@@ -1,6 +1,7 @@
 import { Game, GamePlayer, Table, User } from '../models/index.js';
 import { GAME_STATUS } from '../utils/constants.js';
 import { invalidateCache } from '../middleware/cache.js';
+import socketService from '../services/socketService.js';
 
 // Récupérer toutes les parties en cours
 export const getLiveGames = async (req, res, next) => {
@@ -156,6 +157,15 @@ export const createGame = async (req, res, next) => {
     // Invalider le cache des parties
     await invalidateCache(['games:*']);
 
+    // WEBSOCKET: Émettre le démarrage de la partie
+    socketService.emitGameStarted(createdGame, table, createdGame.players);
+
+    // WEBSOCKET: Mettre à jour le statut de la table
+    socketService.emitTableStatusChanged(table_id, 'IN_USE', {
+      gameId: createdGame.id,
+      tableName: table.name
+    });
+
     res.status(201).json({
       success: true,
       message: 'Partie créée avec succès',
@@ -224,6 +234,12 @@ export const updateGameScore = async (req, res, next) => {
     // Invalider le cache des parties
     await invalidateCache(['games:*']);
 
+    // WEBSOCKET: Émettre la mise à jour du score en temps réel
+    socketService.emitScoreUpdate(id, {
+      team_red_score: updatedGame.team_red_score,
+      team_blue_score: updatedGame.team_blue_score
+    });
+
     res.status(200).json({
       success: true,
       message: 'Score mis à jour',
@@ -282,16 +298,127 @@ export const endGame = async (req, res, next) => {
       ]
     });
 
+    // Déterminer le gagnant
+    const winner = finishedGame.team_red_score > finishedGame.team_blue_score ? 'RED' : 'BLUE';
+
     // Invalider le cache des parties
     await invalidateCache(['games:*']);
+
+    // WEBSOCKET: Émettre la fin de la partie
+    socketService.emitGameEnded(finishedGame, winner, finishedGame.players);
+
+    // WEBSOCKET: Mettre à jour le statut de la table (disponible)
+    socketService.emitTableStatusChanged(finishedGame.table_id, 'AVAILABLE', {
+      tableName: finishedGame.table.name
+    });
+
+    // WEBSOCKET: Mettre à jour le leaderboard après la partie
+    // On le fait de manière asynchrone pour ne pas ralentir la réponse
+    updateLeaderboardAfterGame().catch(err =>
+      console.error('Erreur mise à jour leaderboard:', err)
+    );
 
     res.status(200).json({
       success: true,
       message: 'Partie terminée',
-      data: { game: finishedGame }
+      data: {
+        game: finishedGame,
+        winner
+      }
     });
   } catch (error) {
     next(error);
   }
 };
 
+
+
+/**
+ * Helper: Mettre à jour et broadcaster le leaderboard après une partie
+ */
+async function updateLeaderboardAfterGame() {
+  try {
+    // Récupérer tous les utilisateurs
+    const users = await User.findAll({
+      attributes: ["id", "username"]
+    });
+
+    // Calculer les stats pour chaque utilisateur
+    const leaderboardPromises = users.map(async (user) => {
+      const playerGames = await GamePlayer.findAll({
+        where: { user_id: user.id },
+        include: [
+          {
+            model: Game,
+            as: "game",
+            where: { status: GAME_STATUS.FINISHED },
+            attributes: ["id", "team_red_score", "team_blue_score"]
+          }
+        ]
+      });
+
+      let wins = 0;
+      let losses = 0;
+      let totalGoals = 0;
+
+      playerGames.forEach(participation => {
+        const game = participation.game;
+        const playerTeam = participation.team_color;
+        const opponentTeam = playerTeam === "RED" ? "BLUE" : "RED";
+
+        const playerScore = playerTeam === "RED" ? game.team_red_score : game.team_blue_score;
+        const opponentScore = opponentTeam === "RED" ? game.team_red_score : game.team_blue_score;
+
+        if (playerScore > opponentScore) {
+          wins++;
+        } else if (playerScore < opponentScore) {
+          losses++;
+        }
+
+        totalGoals += participation.goals || 0;
+      });
+
+      const totalGames = playerGames.length;
+      const winRate = totalGames > 0 ? ((wins / totalGames) * 100).toFixed(2) : 0;
+      const winLossRatio = losses > 0 ? parseFloat((wins / losses).toFixed(2)) : parseFloat(wins.toFixed(2));
+
+      return {
+        player: {
+          id: user.id,
+          username: user.username
+        },
+        stats: {
+          totalGames,
+          wins,
+          losses,
+          winLossRatio,
+          winRate: parseFloat(winRate),
+          goals: totalGoals
+        }
+      };
+    });
+
+    let leaderboard = await Promise.all(leaderboardPromises);
+
+    // Filtrer les joueurs actifs et trier
+    leaderboard = leaderboard
+      .filter(player => player.stats.totalGames > 0)
+      .sort((a, b) => {
+        if (b.stats.winLossRatio !== a.stats.winLossRatio) {
+          return b.stats.winLossRatio - a.stats.winLossRatio;
+        }
+        return b.stats.wins - a.stats.wins;
+      });
+
+    // WEBSOCKET: Broadcaster le nouveau leaderboard
+    socketService.emitLeaderboardUpdate({
+      leaderboard,
+      totalActivePlayers: leaderboard.length
+    });
+
+    console.log("Leaderboard mis à jour et broadcasté via WebSocket");
+  } catch (error) {
+    console.error("Erreur mise à jour leaderboard:", error);
+    throw error;
+  }
+}
