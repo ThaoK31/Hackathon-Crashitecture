@@ -5,11 +5,12 @@ import cors from 'cors';
 import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpec from './config/swagger.js';
-import { sequelize } from './models/index.js';
+import { sequelize, User } from './models/index.js';
 import { errorHandler, notFound } from './middleware/errorHandler.js';
 import redis, { pingRedis } from './config/redis.js';
 import { initializeSocket } from './config/socket.js';
 import socketService from './services/socketService.js';
+import seedDatabase from './seeders/seed.js';
 
 // Routes
 import authRoutes from './routes/auth.js';
@@ -144,6 +145,22 @@ const startServer = async () => {
         if (process.env.NODE_ENV === 'development') {
             await sequelize.sync({ alter: true });
             console.log('Modèles synchronisés');
+        }
+
+        // Vérifier si la base de données est vide et auto-seed si nécessaire
+        const userCount = await User.count();
+        if (userCount === 0) {
+            console.log('Base de données vide détectée');
+            console.log('Lancement automatique du seeding...');
+            try {
+                await seedDatabase();
+                console.log('Auto-seeding terminé avec succès !');
+            } catch (error) {
+                console.error('Erreur lors de l\'auto-seeding :', error);
+                console.log('Le serveur démarrera sans données de test');
+            }
+        } else {
+            console.log(`Base de données contient ${userCount} utilisateur(s)`);
         }
 
         // Tester la connexion à Redis

@@ -418,12 +418,33 @@ const seedDatabase = async () => {
     console.log('   - inasse@ynov.com / password123 (USER)');
     console.log('   - mathis@ynov.com / password123 (USER)');
 
-    process.exit(0);
+    return true;
   } catch (error) {
     console.error('❌ Erreur lors du seeding :', error);
-    process.exit(1);
+    throw error;
   }
 };
 
-// Exécuter le seeding
-seedDatabase();
+// Exécuter le seeding seulement si appelé directement (pas quand importé comme module)
+// Détection plus robuste compatible Windows/Linux
+const isRunningDirectly = () => {
+  try {
+    // Convertir import.meta.url en chemin de fichier
+    const currentFilePath = import.meta.url.replace('file:///', '').replace(/\//g, '\\');
+    // Normaliser process.argv[1] (chemin du script exécuté)
+    const executedFilePath = process.argv[1].replace(/\//g, '\\');
+
+    return currentFilePath.toLowerCase().endsWith(executedFilePath.toLowerCase());
+  } catch {
+    // Si la détection échoue, on assume qu'on est en import
+    return false;
+  }
+};
+
+if (isRunningDirectly()) {
+  seedDatabase()
+    .then(() => process.exit(0))
+    .catch(() => process.exit(1));
+}
+
+export default seedDatabase;
