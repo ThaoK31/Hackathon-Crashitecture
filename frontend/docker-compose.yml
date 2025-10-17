@@ -1,0 +1,8 @@
+version: "3.8"
+services:
+  front:
+    build: .
+    container_name: front-dev
+    ports:
+      - "5173:5173"
+    restart: unless-stopped
