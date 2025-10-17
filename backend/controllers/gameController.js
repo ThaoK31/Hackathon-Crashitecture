@@ -1,7 +1,8 @@
-import { Game, GamePlayer, Table, User } from '../models/index.js';
-import { GAME_STATUS } from '../utils/constants.js';
+import { Game, GamePlayer, Table, User, Reservation } from '../models/index.js';
+import { GAME_STATUS, RESERVATION_STATUS } from '../utils/constants.js';
 import { invalidateCache } from '../middleware/cache.js';
 import socketService from '../services/socketService.js';
+import { Op } from 'sequelize';
 
 // Récupérer toutes les parties en cours
 export const getLiveGames = async (req, res, next) => {
@@ -84,6 +85,7 @@ export const getGameById = async (req, res, next) => {
 export const createGame = async (req, res, next) => {
   try {
     const { table_id, players } = req.body;
+    const userId = req.user.id; // ID de l'utilisateur qui crée la partie
 
     // Vérifier que la table existe
     const table = await Table.findByPk(table_id);
@@ -114,6 +116,28 @@ export const createGame = async (req, res, next) => {
       return res.status(409).json({
         success: false,
         message: 'Une partie est déjà en cours sur ce babyfoot'
+      });
+    }
+
+    // Vérifier que l'utilisateur a une réservation active sur cette table
+    const activeReservation = await Reservation.findOne({
+      where: {
+        user_id: userId,
+        table_id: table_id,
+        status: RESERVATION_STATUS.ACTIVE,
+        start_time: {
+          [Op.lte]: new Date() // La réservation a commencé
+        },
+        end_time: {
+          [Op.gte]: new Date() // La réservation n'est pas encore terminée
+        }
+      }
+    });
+
+    if (!activeReservation) {
+      return res.status(403).json({
+        success: false,
+        message: 'Vous devez avoir une réservation active sur cette table pour créer une partie'
       });
     }
 
@@ -199,6 +223,22 @@ export const updateGameScore = async (req, res, next) => {
       });
     }
 
+    // Vérifier que l'utilisateur a la permission de modifier le score
+    // Seuls les joueurs du match ou les admins peuvent modifier le score
+    const isPlayer = await GamePlayer.findOne({
+      where: {
+        game_id: id,
+        user_id: req.user.id
+      }
+    });
+
+    if (!isPlayer && req.user.role !== 'ADMIN') {
+      return res.status(403).json({
+        success: false,
+        message: 'Vous n\'avez pas la permission de modifier le score de cette partie'
+      });
+    }
+
     // Mettre à jour les scores
     if (team_red_score !== undefined) {
       game.team_red_score = team_red_score;
@@ -269,6 +309,22 @@ export const endGame = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: 'Cette partie est déjà terminée'
+      });
+    }
+
+    // Vérifier que l'utilisateur a la permission de terminer la partie
+    // Seuls les joueurs du match ou les admins peuvent terminer la partie
+    const isPlayer = await GamePlayer.findOne({
+      where: {
+        game_id: id,
+        user_id: req.user.id
+      }
+    });
+
+    if (!isPlayer && req.user.role !== 'ADMIN') {
+      return res.status(403).json({
+        success: false,
+        message: 'Vous n\'avez pas la permission de terminer cette partie'
       });
     }
 

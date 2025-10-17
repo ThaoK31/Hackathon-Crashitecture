@@ -1,0 +1,37 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <pattern id="checkerboard" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
+      <rect width="10" height="10" fill="#d1d5db"/>
+      <rect x="10" y="10" width="10" height="10" fill="#d1d5db"/>
+    </pattern>
+  </defs>
+  
+  <!-- Fond transparent simulé avec pattern -->
+  <rect width="64" height="64" fill="url(#checkerboard)"/>
+  
+  <!-- Bouclier -->
+  <path d="M32 8 C42 8 52 12 52 20 L52 44 C52 48 48 52 44 52 L20 52 C16 52 12 48 12 44 L12 20 C12 12 22 8 32 8 Z" 
+        fill="#0d9488" 
+        stroke="#1e40af" 
+        stroke-width="2"/>
+  
+  <!-- Barre horizontale (tige du babyfoot) -->
+  <rect x="8" y="32" width="48" height="3" fill="#60a5fa" rx="1.5"/>
+  
+  <!-- Corps du joueur -->
+  <rect x="28" y="24" width="8" height="12" fill="white" rx="1"/>
+  
+  <!-- Tête -->
+  <circle cx="32" cy="20" r="4" fill="white"/>
+  
+  <!-- Base -->
+  <rect x="30" y="36" width="4" height="6" fill="white" rx="1"/>
+  
+  <!-- Lettre Y -->
+  <path d="M30 26 L32 30 L34 26 M32 30 L32 32" 
+        stroke="#1e40af" 
+        stroke-width="1.5" 
+        stroke-linecap="round" 
+        stroke-linejoin="round" 
+        fill="none"/>
+</svg>

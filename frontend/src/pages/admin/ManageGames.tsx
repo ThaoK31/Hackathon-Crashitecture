@@ -407,7 +407,7 @@ export default function ManageGamesPage() {
 
         {filteredGames.length === 0 && !isLoading && (
           <div className="text-center py-12">
-            <div className="text-6xl mb-4">🏓</div>
+            <div className="text-6xl mb-4">⚽</div>
             <h3 className="text-xl font-semibold text-white mb-2">
               Aucune partie
             </h3>

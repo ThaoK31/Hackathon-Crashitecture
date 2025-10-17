@@ -20,16 +20,16 @@ const router = express.Router();
  * /api/users:
  *   get:
  *     tags: [Users]
- *     summary: Liste tous les utilisateurs (admin only)
+ *     summary: Liste tous les utilisateurs (authentification requise)
  *     security:
  *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: Liste des utilisateurs
- *       403:
- *         description: Accès refusé
+ *       401:
+ *         description: Non authentifié
  */
-router.get('/', authenticate, requireAdmin, getAllUsers);
+router.get('/', authenticate, getAllUsers);
 
 /**
  * @swagger

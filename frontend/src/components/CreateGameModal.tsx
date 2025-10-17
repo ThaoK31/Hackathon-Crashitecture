@@ -1,14 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Table } from "../services/tables";
+import { Reservation } from "../services/reservations";
+import { User } from "../services/users";
 import { CreateGamePayload, PlayerInput } from "../services/games";
+import { gameSchema, type GameFormData } from "../schemas";
 
 interface CreateGameModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: CreateGamePayload) => void;
   tables: Table[];
-  availableUsers: Array<{ id: string; username: string; email: string }>;
+  myReservations: Reservation[];
+  availableUsers: User[];
   isLoading?: boolean;
+  selectedTableId?: string;
 }
 
 export default function CreateGameModal({
@@ -16,15 +21,42 @@ export default function CreateGameModal({
   onClose,
   onSubmit,
   tables,
+  myReservations,
   availableUsers,
   isLoading = false,
+  selectedTableId,
 }: CreateGameModalProps) {
-  const [formData, setFormData] = useState<CreateGamePayload>({
-    table_id: "",
+  const [formData, setFormData] = useState<GameFormData>({
+    table_id: selectedTableId || "",
     players: [],
   });
 
+  // Mettre à jour la table sélectionnée si elle change
+  useEffect(() => {
+    if (selectedTableId) {
+      setFormData((prev) => ({ ...prev, table_id: selectedTableId }));
+    }
+  }, [selectedTableId]);
+
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  // Filtrer les tables pour ne montrer que celles avec des réservations actives
+  const getAvailableTables = () => {
+    const now = new Date();
+    const activeReservations = myReservations.filter(
+      (reservation) =>
+        reservation.status === "ACTIVE" &&
+        new Date(reservation.start_time) <= now &&
+        new Date(reservation.end_time) >= now
+    );
+
+    const reservedTableIds = activeReservations.map(
+      (reservation) => reservation.table_id
+    );
+    return tables.filter((table) => reservedTableIds.includes(table.id));
+  };
+
+  const availableTables = getAvailableTables();
 
   const handleAddPlayer = () => {
     if (formData.players.length < 4) {
@@ -61,33 +93,16 @@ export default function CreateGameModal({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validation
-    const newErrors: Record<string, string> = {};
+    // Validation avec Zod
+    const result = gameSchema.safeParse(formData);
 
-    if (!formData.table_id) {
-      newErrors.table_id = "Veuillez sélectionner une table";
-    }
-
-    if (formData.players.length < 2) {
-      newErrors.players = "Au moins 2 joueurs sont requis";
-    }
-
-    // Vérifier que tous les joueurs ont un user_id
-    const hasEmptyPlayers = formData.players.some((player) => !player.user_id);
-    if (hasEmptyPlayers) {
-      newErrors.players = "Tous les joueurs doivent être sélectionnés";
-    }
-
-    // Vérifier qu'il n'y a pas de doublons
-    const userIds = formData.players.map((p) => p.user_id).filter(Boolean);
-    const uniqueUserIds = new Set(userIds);
-    if (userIds.length !== uniqueUserIds.size) {
-      newErrors.players =
-        "Un joueur ne peut pas être sélectionné plusieurs fois";
-    }
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
+    if (!result.success) {
+      const formattedErrors: Record<string, string> = {};
+      result.error.issues.forEach((err) => {
+        const path = err.path.join(".");
+        formattedErrors[path] = err.message;
+      });
+      setErrors(formattedErrors);
       return;
     }
 
@@ -97,11 +112,16 @@ export default function CreateGameModal({
 
   const handleClose = () => {
     setFormData({
-      table_id: "",
+      table_id: selectedTableId || "",
       players: [],
     });
     setErrors({});
     onClose();
+  };
+
+  // Fonction pour obtenir les erreurs de champ
+  const getFieldError = (field: string): string | undefined => {
+    return errors[field];
   };
 
   if (!isOpen) return null;
@@ -120,9 +140,25 @@ export default function CreateGameModal({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {availableTables.length === 0 && (
+            <div className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 px-4 py-3 rounded-lg text-sm">
+              ⚠️ Vous devez avoir une réservation active pour créer une partie.
+              <a
+                href="/reservations"
+                className="text-yellow-300 hover:text-yellow-200 underline ml-1"
+              >
+                Créer une réservation
+              </a>
+            </div>
+          )}
+
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">
-              Table
+              Table{" "}
+              {availableTables.length > 0 &&
+                `(${availableTables.length} disponible${
+                  availableTables.length > 1 ? "s" : ""
+                })`}
             </label>
             <select
               value={formData.table_id}
@@ -132,16 +168,22 @@ export default function CreateGameModal({
               className="w-full bg-slate-800/50 border border-white/10 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Sélectionner une table</option>
-              {tables
-                .filter((table) => table.is_available)
-                .map((table) => (
+              {availableTables.length > 0 ? (
+                availableTables.map((table) => (
                   <option key={table.id} value={table.id}>
                     {table.name} - {table.location}
                   </option>
-                ))}
+                ))
+              ) : (
+                <option value="" disabled>
+                  Aucune table réservée disponible
+                </option>
+              )}
             </select>
-            {errors.table_id && (
-              <p className="text-red-400 text-sm mt-1">{errors.table_id}</p>
+            {getFieldError("table_id") && (
+              <p className="text-red-400 text-sm mt-1">
+                {getFieldError("table_id")}
+              </p>
             )}
           </div>
 
@@ -149,16 +191,31 @@ export default function CreateGameModal({
             <div className="flex items-center justify-between mb-3">
               <label className="block text-sm font-medium text-slate-300">
                 Joueurs ({formData.players.length}/4)
+                {availableUsers.length > 0 && (
+                  <span className="text-xs text-slate-500 ml-2">
+                    ({availableUsers.length} utilisateur
+                    {availableUsers.length > 1 ? "s" : ""} disponible
+                    {availableUsers.length > 1 ? "s" : ""})
+                  </span>
+                )}
               </label>
               <button
                 type="button"
                 onClick={handleAddPlayer}
-                disabled={formData.players.length >= 4}
+                disabled={
+                  formData.players.length >= 4 || availableUsers.length === 0
+                }
                 className="text-blue-400 hover:text-blue-300 text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 + Ajouter un joueur
               </button>
             </div>
+
+            {availableUsers.length === 0 && (
+              <div className="bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 px-4 py-3 rounded-lg text-sm mb-3">
+                ⚠️ Aucun utilisateur disponible. Vérifiez votre connexion.
+              </div>
+            )}
 
             {formData.players.map((player, index) => (
               <div
@@ -242,8 +299,10 @@ export default function CreateGameModal({
               </div>
             ))}
 
-            {errors.players && (
-              <p className="text-red-400 text-sm mt-1">{errors.players}</p>
+            {getFieldError("players") && (
+              <p className="text-red-400 text-sm mt-1">
+                {getFieldError("players")}
+              </p>
             )}
           </div>
 
@@ -257,10 +316,14 @@ export default function CreateGameModal({
             </button>
             <button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || availableTables.length === 0}
               className="flex-1 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-2 px-4 rounded-lg font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? "Création..." : "Créer la partie"}
+              {isLoading
+                ? "Création..."
+                : availableTables.length === 0
+                ? "Aucune table réservée"
+                : "Créer la partie"}
             </button>
           </div>
         </form>

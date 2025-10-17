@@ -98,7 +98,7 @@ const seedDatabase = async () => {
     console.log(`   Admin : admin@ynov.com / password123`);
 
     // ===== 2. CRÉER LES BABYFOOTS =====
-    console.log('\n🏓 Création des babyfoots...');
+    console.log('\n⚽ Création des babyfoots...');
 
     const tables = await Table.bulkCreate([
       {
@@ -394,7 +394,7 @@ const seedDatabase = async () => {
     console.log(`   - Admin : admin@ynov.com / password123`);
     console.log(`   - Users : theo, antoine, lucas, julien, remi, louis, inasse, mathis`);
     console.log(`   - Tous les mots de passe : password123`);
-    console.log(`\n🏓 Babyfoots : ${tables.length}`);
+    console.log(`\n⚽ Babyfoots : ${tables.length}`);
     console.log(`   - Disponibles : ${tables.filter(t => t.is_available).length}`);
     console.log(`   - En maintenance : ${tables.filter(t => !t.is_available).length}`);
     console.log(`\n📅 Réservations : ${reservations.length}`);
