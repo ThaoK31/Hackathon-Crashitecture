@@ -223,6 +223,22 @@ export const updateGameScore = async (req, res, next) => {
       });
     }
 
+    // Vérifier que l'utilisateur a la permission de modifier le score
+    // Seuls les joueurs du match ou les admins peuvent modifier le score
+    const isPlayer = await GamePlayer.findOne({
+      where: {
+        game_id: id,
+        user_id: req.user.id
+      }
+    });
+
+    if (!isPlayer && req.user.role !== 'ADMIN') {
+      return res.status(403).json({
+        success: false,
+        message: 'Vous n\'avez pas la permission de modifier le score de cette partie'
+      });
+    }
+
     // Mettre à jour les scores
     if (team_red_score !== undefined) {
       game.team_red_score = team_red_score;
@@ -293,6 +309,22 @@ export const endGame = async (req, res, next) => {
       return res.status(400).json({
         success: false,
         message: 'Cette partie est déjà terminée'
+      });
+    }
+
+    // Vérifier que l'utilisateur a la permission de terminer la partie
+    // Seuls les joueurs du match ou les admins peuvent terminer la partie
+    const isPlayer = await GamePlayer.findOne({
+      where: {
+        game_id: id,
+        user_id: req.user.id
+      }
+    });
+
+    if (!isPlayer && req.user.role !== 'ADMIN') {
+      return res.status(403).json({
+        success: false,
+        message: 'Vous n\'avez pas la permission de terminer cette partie'
       });
     }
 
