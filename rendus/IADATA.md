@@ -39,7 +39,8 @@ Nous avons structuré notre travail en **5 grandes étapes** :
 2. Modélisation de la BDD  
 3. Nettoyage des données  
 4. Exportation des données en BDD  
-5. Analyse et visualisation des données  
+5. Analyse statistique des données
+6. Visualisation des données
 
 Tous les documents et supports cités dans ce `.md` sont disponibles dans le dossier `/rendus/data`.  
 
@@ -134,5 +135,11 @@ Avant l’analyse, nous avons défini **3 KPI principaux** :
 
 3. **Nombre de parties jouées sur la saison 2024/2025**  
    - Utilité : justifier la **solution de réservation de table** lors de la présentation.
+
+---
+
+# 6. Visualisation des données
+
+
   
   
