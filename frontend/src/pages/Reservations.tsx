@@ -43,12 +43,17 @@ export default function ReservationsPage() {
   const handleCreateReservation = async (data: any) => {
     try {
       setIsCreatingReservation(true);
+      setError(null);
       await reservationService.createReservation(data);
       setIsReservationModalOpen(false);
       await fetchData(); // Recharger les données
     } catch (err: any) {
       console.error("Erreur lors de la création de la réservation:", err);
-      setError("Erreur lors de la création de la réservation");
+      const errorMessage =
+        err.response?.data?.message ||
+        "Erreur lors de la création de la réservation";
+      setError(errorMessage);
+      throw err; // Propager l'erreur au modal
     } finally {
       setIsCreatingReservation(false);
     }

@@ -86,27 +86,19 @@ export const createReservation = async (req, res, next) => {
     }
 
     // Vérifier qu'il n'y a pas de conflit avec d'autres réservations
+    // Un conflit existe si: 
+    // - la nouvelle réservation commence avant qu'une réservation existante se termine
+    // - ET la nouvelle réservation se termine après qu'une réservation existante commence
+    const startDate = new Date(start_time);
+    const endDate = new Date(end_time);
+    
     const conflictingReservations = await Reservation.findAll({
       where: {
         table_id,
         status: RESERVATION_STATUS.ACTIVE,
-        [Op.or]: [
-          {
-            start_time: {
-              [Op.between]: [new Date(start_time), new Date(end_time)]
-            }
-          },
-          {
-            end_time: {
-              [Op.between]: [new Date(start_time), new Date(end_time)]
-            }
-          },
-          {
-            [Op.and]: [
-              { start_time: { [Op.lte]: new Date(start_time) } },
-              { end_time: { [Op.gte]: new Date(end_time) } }
-            ]
-          }
+        [Op.and]: [
+          { start_time: { [Op.lt]: endDate } },
+          { end_time: { [Op.gt]: startDate } }
         ]
       }
     });
@@ -114,7 +106,7 @@ export const createReservation = async (req, res, next) => {
     if (conflictingReservations.length > 0) {
       return res.status(409).json({
         success: false,
-        message: 'Ce créneau est déjà réservé'
+        message: 'Ce créneau est déjà réservé pour cette table'
       });
     }
 

@@ -5,7 +5,7 @@ import { CreateReservationData } from "../services/reservations";
 interface ReservationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: CreateReservationData) => void;
+  onSubmit: (data: CreateReservationData) => Promise<void>;
   tables: Table[];
   selectedTableId?: string;
   isLoading?: boolean;
@@ -33,7 +33,7 @@ export default function ReservationModal({
     }
   }, [selectedTableId]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validation
@@ -71,7 +71,24 @@ export default function ReservationModal({
     }
 
     setErrors({});
-    onSubmit(formData);
+
+    // Convertir les dates au format ISO complet
+    const dataToSend = {
+      ...formData,
+      start_time: new Date(formData.start_time).toISOString(),
+      end_time: new Date(formData.end_time).toISOString(),
+    };
+
+    try {
+      await onSubmit(dataToSend);
+    } catch (err: any) {
+      // Afficher l'erreur dans le modal si c'est un conflit
+      if (err.response?.status === 409) {
+        setErrors({
+          general: err.response?.data?.message || "Ce créneau est déjà réservé",
+        });
+      }
+    }
   };
 
   const handleClose = () => {
@@ -102,6 +119,12 @@ export default function ReservationModal({
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {errors.general && (
+            <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-4 py-3 rounded-lg text-sm">
+              {errors.general}
+            </div>
+          )}
+
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-2">
               Table
