@@ -24,10 +24,8 @@ export default function NavBar({ userRole, username }: NavBarProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white text-sm">🏓</span>
-              </div>
-              <h1 className="text-xl font-bold text-white">BabyfootHub</h1>
+              <img src="/logo.png" alt="Logo Babynov" className="w-8 h-8" />
+              <h1 className="text-xl font-bold text-white">Babynov</h1>
             </Link>
             <div className="flex items-center gap-4">
               <button
@@ -85,10 +83,8 @@ export default function NavBar({ userRole, username }: NavBarProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
-                <span className="text-white text-sm">🏓</span>
-              </div>
-              <h1 className="text-xl font-bold text-white">BabyfootHub</h1>
+              <img src="/logo.png" alt="Logo Babynov" className="w-8 h-8" />
+              <h1 className="text-xl font-bold text-white">Babynov</h1>
             </Link>
             <nav className="flex items-center gap-6">
               <Link
@@ -149,11 +145,9 @@ export default function NavBar({ userRole, username }: NavBarProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
-                <span className="text-white text-sm">👑</span>
-              </div>
+              <img src="/logo.png" alt="Logo Babynov" className="w-8 h-8" />
               <h1 className="text-xl font-bold text-white">
-                BabyfootHub <span className="text-purple-400">Admin</span>
+                Babyfoot Ynov <span className="text-purple-400">Admin</span>
               </h1>
             </Link>
 

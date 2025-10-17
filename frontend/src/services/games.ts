@@ -31,11 +31,12 @@ export interface Game {
   table_id: string;
   team_red_score: number;
   team_blue_score: number;
-  is_finished: boolean;
+  status: "ONGOING" | "FINISHED";
+  started_at: string;
+  ended_at?: string;
   created_at: string;
   updated_at: string;
-  ended_at?: string;
-  players: Player[];
+  players?: Player[];
   table?: {
     id: string;
     name: string;

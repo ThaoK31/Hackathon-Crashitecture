@@ -38,10 +38,14 @@ export default function LoginPage() {
         {/* Header */}
         <div className="text-center mb-8 animate-fade-in">
           <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl mb-4 animate-bounce-gentle">
-            <span className="text-2xl">🏓</span>
+            <img
+              src="/logo-ynov-babyfoot.svg"
+              alt="Logo Babynov"
+              className="w-10 h-10"
+            />
           </div>
           <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-2">
-            BabyfootHub
+            Babynov
           </h1>
           <p className="text-slate-300 text-lg">
             Connectez-vous pour réserver un babyfoot
