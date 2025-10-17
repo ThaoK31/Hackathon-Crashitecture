@@ -30,3 +30,54 @@ Autrement, il n'y a pas de format imposé, mais essayez de rester clair et conci
 En conclusion, cela doit résumer votre travail en tant qu'expert.e IA Data, et vous permettre de garder un trace écrite de votre contribution au projet.
 
 Merci de votre participation, et bon courage pour la suite du hackathon !
+
+______________________________________________________________________________________________________________________________________________________________________________
+
+On va repartir notre travail en 5 grandes etapes: Exploration des données, Modélisation de la BDD, Nettoyage des données, Exportation des données en BDD et Analyse des données et Visualisation. Tout les documents et supports cité dans ce .md sont consultable dans le dossier /rendus/data .
+
+
+# Exploration des données
+
+La 1ere étapes pour nous à consisté de découvrir le dataset grâce à python et notament avec la bibliothéque pandas et de repérer les colonnes exploitable et utilisable pour la finalité du projet commun.
+A travers cette exploration nous avont répartie les tâches pour le futur néttoyage des données et la réalisation du MCD (Model Conceptuel de Données),
+grâce a cette exploration on à pu constater un gros travail de nettoyage notament au niveau des dates et en normalisation du texte et chiffres (multiformat de valeur dans les colonnes, données manquantes, erreur de format...).
+
+# Réalisation du MCD (1er jet)
+
+Apres discution avec les différentes filliére, nous avons fait le choix de réaliser le MCD (schéma dans le dossier data) pour permettre a l'équipe des infras et aux devs d'avancer de leurs cotés sans être bloqués.
+Les infra on pu créer la BDD + les tables et les devs ont pu s'appuyer sur le MCD pour construire leurs logique de requetage.
+
+# Nettoyage des données
+
+Voici l'étape la plus longue et aussi celle qui nous à posé le plus de difficulté car plus on nettoyé et on exploré plus on trouver de quoi nettoyer ! on voyait le temps passer et notre donnée toujours pas propre comme on le voulait.
+
+On s'est séparé le travail en 2 partie , une personne qui s'occupe du nettoyage des dates et des durées et l'autre personne qui s'occupe de la normalisation des données et complétion des valeurs nuls.
+
+Exemple de dates dans le dataset et du resultat voulu et obtenu:
+
+Avant:          Aprés:
+Feb 06st 2023   2023-02-06  
+24-03-2023      2023-03-24
+2025-01-13      2025-01-13
+Nov 11 2025     2025-11-11
+30 Sep 23       2023-09-30
+
+
+Exemple de valeurs différente uniformisé par la suite dans la colonne winner:
+
+Avant:        Aprés:
+Red           red
+blue          blue
+NaN           blue (Gagnant récupéré grace au score bleu et rouge de la partie)
+R             red
+B             blue
+
+On à encore beaucoup d'autres exemples colonne raw_rating, game_duration etc ... Toute notre démarche de nettoyage est disponible et documenté dans notre notebook dans le dossier /rendu/data.
+
+# Exportation des données en BDD
+
+C'est une des seule étapes que l'on à pas pu terminer par manque de temps, beaucoup de probléme de connexion à la BDD, on à quand même pu séparer notre CSV en plusieurs datafame correspondant à chacune de nos table en BDD et en exporter quelque une grâce à la bibliothéque SQLalchemy qui permet de se connecter à une BDD et d'exporeter des dataframe vers la BDD.
+
+
+# Analyse des données
+
