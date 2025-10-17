@@ -16,18 +16,53 @@ Votre mission : transformer le babyfoot classique en expérience high-tech pour 
 
 ---
 
-> Ce fichier contient les informations spécifiques au Cloud & Infra de votre projet. Il suffit d'en remplir une seule fois, même si vous êtes plusieurs Cloud & Infra dans l'équipe.
+Objectif général
+Déployer une infrastructure redondante et sécurisée, afin de déployer un site web pouvant gérer la reservation et le scoring des joueurs.
 
-# Requis
+Hébergement de l’application web (frontend et backend)
+Base de données pour stocker les informations des babyfoots et des utilisateurs
+Services de surveillance et de journalisation
+Mise en place de la sécurité (firewalls, gestion des accès, etc.)
 
-Ce README contient les requis fonctionnels de la partie Cloud & Infra de votre projet. Il doit compléter le README principal à la racine du projet, et servira la partie de votre note propre à votre spécialité.
+Simplicité de déploiement :
 
-Basez-vous sur les spécifications dans [SPECIFICATIONS.md](../SPECIFICATIONS.md) pour remplir ce document.
+Utilisation d’outils d’automatisation (Ansible) pour déployer l’infrastructure en une seule commande.
 
-Décrivez ici les actions que vous avez menées, votre démarche, les choix techniques que vous avez faits, les difficultés rencontrées, etc. Précisez également dans quelle mesure vous avez pu collaborer avec les autres spécialités.
+Documentation claire pour le déploiement. (cf script)
 
-Autrement, il n'y a pas de format imposé, mais essayez de rester clair et concis, je ne vous demande pas de rédiger un roman, passez à l'essentiel, et épargnez-moi de longues pages générées par IA (malusée).
+Host sécurisé et protégé :
 
-En conclusion, cela doit résumer votre travail en tant qu'expert.e infra, et vous permettre de garder un trace écrite de votre contribution au projet.
+Déploiement du site via une stack apache2 et nginx.
+-> Apache2 porte le rôle de serveur web, exposant ses services sur le port http.
+-> Nginx porte le rôle de reverse proxy, il expose les services du serveur web sur le port 443 via https. le certificat ssl est autosignée. (prévoir en évolution de faire un certificat valide avec nom de domaine)
 
-Merci de votre participation, et bon courage pour la suite du hackathon !
+Base de données :
+
+2 bases de données pour l'hébergement :
+-> 1 base REDIS, pour actualisation en temps réel des données
+-> 1 base Postgresql, pour l'hébergement des joueurs
+
+Sauvegardes régulières et restauration des données. (faire des tests et fabriquer une documentation)
+
+Surveillance et journalisation :
+
+-> Journalisation des accès par nginx (check des logs)
+-> Déployer un système de survaillance via zabbix pour monitorer les différents points :
+      -> Etat des bases
+      -> Taille stockage
+      -> Connexion active
+
+========================================================================================================================================
+
+Haute disponibilités :
+->Mise en place de haute disponibilité sur les bases de données.
+-> Redondance des bases avec réplication des bases en temps réel ( Prévoir 3 Bases pour POSTGRESQL dans le corrum, 2 en réplication + 1 qui fait l le vote)
+-> Possibilité d'ajouter une ip virtuel pour regrouper nos bases et facilité la gestions des chemins vers les bdds pour les dev.
+-> Redondance des serveur Apaches
+
+Sécurité : 
+-> Ajout d'un firewall dédié type PFSENSE ( Gestion de règle et limitation des com)
+-> Segmentation sur 3 Résaeux ( SERVEUR, BDD, EXPOSITION)
+-> Changer les ports par défaut des protocoles
+-> Création de Honeypot sur les ports les plus utilisées
+
